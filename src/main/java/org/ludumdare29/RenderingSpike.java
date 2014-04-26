@@ -13,10 +13,14 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 /**
- * Main entrypoint
+ * Test rendering and 3D
  */
-public class Main implements ApplicationListener {
+public class RenderingSpike implements ApplicationListener {
 
     public static final String NAME = "Crushing Depth";
 
@@ -26,6 +30,8 @@ public class Main implements ApplicationListener {
     public ModelInstance instance;
     public Environment environment;
     public CameraInputController camController;
+
+    private List<ModelInstance> entries = new ArrayList<>();
 
     public void create () {
         // Setup model batching
@@ -47,6 +53,20 @@ public class Main implements ApplicationListener {
 
         // Create instance of model to render
         instance = new ModelInstance(model);
+        entries.add(instance);
+
+        Random random = new Random();
+        for (int i = 0; i < 1000; i++) {
+            final ModelInstance cube = new ModelInstance(model);
+            cube.transform.translate((float) random.nextGaussian() * 100,
+                                     (float) random.nextGaussian() * 100,
+                                     (float) random.nextGaussian() * 100);
+            cube.transform.rotate((float) random.nextGaussian() * 10,
+                                  (float) random.nextGaussian() * 10,
+                                  (float) random.nextGaussian() * 10,
+                                  (float) random.nextGaussian() * 180);
+            entries.add(cube);
+        }
 
         // Setup lighting
         environment = new Environment();
@@ -68,7 +88,7 @@ public class Main implements ApplicationListener {
 
         // Render scene
         modelBatch.begin(cam);
-        modelBatch.render(instance, environment);
+        modelBatch.render(entries, environment);
         modelBatch.end();
     }
 
@@ -89,7 +109,7 @@ public class Main implements ApplicationListener {
 
     public static void main(String[] args) {
 
-        new LwjglApplication(new Main(), NAME, 800, 600);
+        new LwjglApplication(new RenderingSpike(), NAME, 800, 600);
 
     }
 
