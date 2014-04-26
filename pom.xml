@@ -32,6 +32,13 @@
             <version>0.1.15</version>
         </dependency>
 
+        <!-- Entity library -->
+        <dependency>
+            <groupId>org.entityflow</groupId>
+            <artifactId>entityflow</artifactId>
+            <version>0.2</version>
+        </dependency>
+
         <!-- 3D rendering library API -->
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
@@ -44,7 +51,6 @@
             <groupId>com.badlogicgames.gdx</groupId>
             <artifactId>gdx-backend-lwjgl</artifactId>
             <version>${gdx.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <!-- 3D rendering native wrappers -->
@@ -53,7 +59,6 @@
             <artifactId>gdx-platform</artifactId>
             <version>${gdx.version}</version>
             <classifier>natives-desktop</classifier>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>

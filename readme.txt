@@ -11,8 +11,8 @@ Make sure you have Java installed.
 Starting
 ========
 
-Unix
-----
+Linux
+-----
 
 Run the start.sh script, for example by opening the terminal in the directory you unpacked the game in and typing
 ./start.sh
