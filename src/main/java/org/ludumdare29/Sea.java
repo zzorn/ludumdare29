@@ -112,6 +112,14 @@ public class Sea {
         }
     }
 
+    private double calculateAirDensity(double altitude_m) {
+        final double airPressureAtAltitude = calculateAirPressure(altitude_m);
+
+        final double temperatureAtAltitude = AIR_TEMPERATURE_AT_SEA_LEVEL_K - ATMOSPHERIC_TEMPERATURE_LAPSE_RATE_K_PER_M * altitude_m;
+
+        return airPressureAtAltitude * DRY_AIR_MOLAR_MASS / IDEAL_GAS_CONSTANT * temperatureAtAltitude;
+    }
+
     private double calculateAirPressure(double altitude_m) {
         final double exponent = GRAVITY_AT_SEA_LEVEL * DRY_AIR_MOLAR_MASS / IDEAL_GAS_CONSTANT *
                                 ATMOSPHERIC_TEMPERATURE_LAPSE_RATE_K_PER_M;
@@ -120,14 +128,6 @@ public class Sea {
                                                                AIR_TEMPERATURE_AT_SEA_LEVEL_K);
 
         return Math.pow(base, exponent);
-    }
-
-    private double calculateAirDensity(double altitude_m) {
-        final double airPressureAtAltitude = calculateAirPressure(altitude_m);
-
-        final double temperatureAtAltitude = AIR_TEMPERATURE_AT_SEA_LEVEL_K - ATMOSPHERIC_TEMPERATURE_LAPSE_RATE_K_PER_M * altitude_m;
-
-        return airPressureAtAltitude * DRY_AIR_MOLAR_MASS / IDEAL_GAS_CONSTANT * temperatureAtAltitude;
     }
 
 

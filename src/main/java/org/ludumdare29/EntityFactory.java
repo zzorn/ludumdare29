@@ -32,10 +32,10 @@ public final class EntityFactory {
     public Entity createSubmarine(Vector3 pos) {
         LocationComponent location = new LocationComponent(pos);
         SubmarineAppearance appearance = new SubmarineAppearance();
-        PhysicalComponent physical = new PhysicalComponent(30000, 20, 1040, 0.05f);
-        BubblingComponent bubbling = new BubblingComponent(10, 50, 0.1f, 10f, 30, true, true, true);
+        PhysicalComponent physical = new PhysicalComponent(10000f, 1500f, 0.05f);
+        BubblingComponent bubbling = new BubblingComponent(40, 50, 0.1f, 1f, 10, true, true, true);
         bubbling.bubblingPosOffset.set(0, 30, 0);
-        return world.createEntity(location, appearance, bubbling);
+        return world.createEntity(location, appearance, bubbling, physical);
     }
 
     /**
@@ -90,7 +90,7 @@ public final class EntityFactory {
                           randomNormalDistributed(bubbleCloudDiam_m),
                           randomNormalDistributed(bubbleCloudDiam_m));
 
-            final float bubbleDiam_m = 0.001f + randomPositiveNormalDistributed(averageBubbleDiam_m * 2);
+            final float bubbleDiam_m = 0.01f + randomPositiveNormalDistributed(averageBubbleDiam_m * 2);
 
             float lifeTime = lifeTime_seconds * 0.5f + randomNormalDistributed(lifeTime_seconds * 0.5f);
 
@@ -104,7 +104,7 @@ public final class EntityFactory {
             final Color color = new Color(0.8f, 0.9f, 1f, 1);
             final BubbleAppearance appearance = new BubbleAppearance(color);
             final LocationComponent location = new LocationComponent(pos);
-            final PhysicalComponent physical = PhysicalComponent.spherical(radius, Sea.AIR_DENSITY_AT_SEA_LEVEL);
+            final PhysicalComponent physical = PhysicalComponent.fromRadiusAndDensity(radius, Sea.AIR_DENSITY_AT_SEA_LEVEL);
             final BubbleComponent bubble = new BubbleComponent(lifeTime_seconds);
 
             return world.createEntity(appearance, location, bubble, physical);

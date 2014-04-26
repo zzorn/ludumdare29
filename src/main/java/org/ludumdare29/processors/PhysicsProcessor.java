@@ -41,45 +41,55 @@ public class PhysicsProcessor extends BaseEntityProcessor {
         final LocationComponent location = entity.getComponent(LocationComponent.class);
         final PhysicalComponent physical = entity.getComponent(PhysicalComponent.class);
 
+        final Vector3 force = physical.thrust;
         final Vector3 velocity = physical.velocity;
         final Vector3 position = location.position;
-        final boolean underwater = sea.isUnderWater(position);
+        final float environment_density = sea.getDensity(position);
+        final float volume_m3 = physical.getVolume_m3();
+        final float crossArea_m2 = physical.getCrossArea_m2();
 
         // Calculate relative velocity in the fluid (water or air)
         sea.getCurrent(position, fluidVelocity);
         relativeVelocity.set(velocity).sub(fluidVelocity);
 
+        // Apply buoyancy
+        float buoyancyForce = environment_density * volume_m3 * sea.GRAVITY_AT_SEA_LEVEL;
+        force.add(0, buoyancyForce, 0);
+
+        // Apply gravitation
+        float gravitationForce = physical.getMass_kg() * sea.GRAVITY_AT_SEA_LEVEL;
+        force.add(0, -gravitationForce, 0);
+
+        // Update movement based on forces
+        float movedMass = physical.getMass_kg() + 0.01f * crossArea_m2 * environment_density; // Include some of the mass of the displaced medium, otherwise very light objects move too easily through a heavy medium
+        force.scl(deltaTime / movedMass); // delta V = (Force * delta Time) / mass
+        velocity.add(force);
+
         // Apply water or air resistance
         // DragForce = -0.5 * surroundingDensity * velocityComparedToSurroundings^2 * entityDragConstant * entityCrossSection
-        dragForce.set(relativeVelocity);
-        float dragForceScale = -0.5f *
-                               dragForce.len() * // Square velocity
-                               sea.getDensity(position) * // Fluid density
-                               physical.dragCoefficient *
-                               physical.radius_m * physical.radius_m * MathUtils.TauFloat * 0.5f; // Area
-        dragForce.scl(dragForceScale);
-        dragForce.scl(deltaTime);
+        float dragMagnitude = 0.5f *
+                              relativeVelocity.len2() *  // Square velocity
+                              environment_density * // Fluid density
+                              physical.dragCoefficient *
+                              crossArea_m2;
+
+        // Clamp drag so that it doesn't reverse the direction of travel
+        dragMagnitude *= deltaTime / physical.getMass_kg();
+        final float relativeVelocity = this.relativeVelocity.len();
+        if (dragMagnitude > relativeVelocity) dragMagnitude = relativeVelocity;
+
+        // Apply drag
+        dragForce.set(this.relativeVelocity).nor();
+        dragForce.scl(-dragMagnitude);
         velocity.add(dragForce);
-
-        // Update movement based on engine acceleration (only works underwater)
-        if (underwater) {
-            velocityDelta.set(physical.acceleration);
-            velocityDelta.scl(deltaTime);
-            velocity.add(velocityDelta);
-        }
-
-        // Apply buoyancy
-        float buoyancyForce = sea.getDensity(position) * physical.getVolume_m3() * sea.GRAVITY_AT_SEA_LEVEL;
-        buoyancyForce *= deltaTime;
-        velocity.y += buoyancyForce;
 
         // Update position
         positionDelta.set(velocity);
         positionDelta.scl(deltaTime);
         position.add(positionDelta);
 
-        // Zero acceleration and thrust.  Any motor or other propulsion processors can update them.
-        physical.acceleration.set(0,0,0);
+        // Zero thrust and torque.  Any motor or other propulsion processors can update them.
+        physical.thrust.set(0,0,0);
         physical.torque.idt();
     }
 }

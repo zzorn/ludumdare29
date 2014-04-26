@@ -70,15 +70,18 @@ public class Game extends ApplicationAdapter {
                         (float) random.nextGaussian() * spread - 10,
                         (float) random.nextGaussian() * spread);
 
-            //entityFactory.createVaryingBubbleCloud(tempPos, 50 + random.nextInt(100), diam, random.nextFloat() * 1, 60f);
+            entityFactory.createVaryingBubbleCloud(tempPos, 50 + random.nextInt(100), diam, random.nextFloat() * 1, 60f);
         }
 
         // Create some submarines
-        spread = 50;
-        for (int i = 0; i < 10; i++) {
+        spread = 100;
+        for (int i = 0; i < 200; i++) {
+            /*
             tempPos.set((float) random.nextGaussian() * spread,
-                        (float) random.nextGaussian() * spread - 120,
+                        (float) random.nextGaussian() * spread ,
                         (float) random.nextGaussian() * spread);
+                        */
+            tempPos.set((i% 10) * 10 - 100, -i * 2 + 100, (i / 10) * 10 -100  );
 
             entityFactory.createSubmarine(tempPos);
         }
