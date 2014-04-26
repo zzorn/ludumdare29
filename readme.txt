@@ -1,5 +1,5 @@
 
-
+Ludumdare29 entry by zzorn
 
 
 Requirements
@@ -8,8 +8,8 @@ Requirements
 Make sure you have Java installed.
 
 
-Usage
-=====
+Starting
+========
 
 Unix
 ----
@@ -24,6 +24,12 @@ Windows
 
 Double-click on start.bat
 
+
+
+Usage
+=====
+
+Press H to show on-screen help.
 
 
 
