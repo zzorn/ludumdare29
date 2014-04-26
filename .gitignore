@@ -1,0 +1,19 @@
+*.class
+
+# Build files
+target/
+release-target/
+ludumdare29_zzorn.zip
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Project files
+*.iml
+.idea/
+
+
+# Temp files
+*~
