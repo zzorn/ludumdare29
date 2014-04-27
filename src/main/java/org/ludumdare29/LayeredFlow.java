@@ -1,6 +1,5 @@
 package org.ludumdare29;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import org.flowutils.MathUtils;
 
@@ -19,12 +18,16 @@ public final class LayeredFlow {
 
     public LayeredFlow(Random random,
                        double surfaceRoughSize_m,
-                       double surfaceFineSize_m,
                        double surfaceRoughAmplitude,
+                       double surfaceMediumSize_m,
+                       double surfaceMediumAmplitude,
+                       double surfaceFineSize_m,
                        double surfaceFineAmplitude,
                        double bottomRoughSize_m,
-                       double bottomFineSize_m,
                        double bottomRoughAmplitude,
+                       double bottomMediumSize_m,
+                       double bottomMediumAmplitude,
+                       double bottomFineSize_m,
                        double bottomFineAmplitude,
                        float ... flowDepths) {
 
@@ -36,8 +39,10 @@ public final class LayeredFlow {
             double relPos = flowCount == 1 ? 0.5 : i / (flowCount-1);
             flows[i] = new CurlNoise(random,
                                      MathUtils.mix(relPos, surfaceRoughSize_m, bottomRoughSize_m),
-                                     MathUtils.mix(relPos, surfaceFineSize_m, bottomFineSize_m),
                                      MathUtils.mix(relPos, surfaceRoughAmplitude, bottomRoughAmplitude),
+                                     MathUtils.mix(relPos, surfaceMediumSize_m, bottomMediumSize_m),
+                                     MathUtils.mix(relPos, surfaceMediumAmplitude, bottomMediumAmplitude),
+                                     MathUtils.mix(relPos, surfaceFineSize_m, bottomFineSize_m),
                                      MathUtils.mix(relPos, surfaceFineAmplitude, bottomFineAmplitude));
         }
     }
