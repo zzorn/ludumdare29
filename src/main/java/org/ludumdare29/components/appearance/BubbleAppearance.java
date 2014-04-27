@@ -26,7 +26,7 @@ public class BubbleAppearance extends ModelAppearance {
     @Override protected Model createBaseModel() {
         ModelBuilder modelBuilder = new ModelBuilder();
         return modelBuilder.createSphere(1, 1, 1,
-                                         16, 16,
+                                         12, 12,
                                          new Material(),
                                          VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
     }

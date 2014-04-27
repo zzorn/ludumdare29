@@ -29,12 +29,14 @@ public final class EntityFactory {
         this.sea = sea;
     }
 
-    public Entity createSubmarine(Vector3 pos) {
+    public Entity createSubmarine(Vector3 pos, float sizeFactor) {
         LocationComponent location = new LocationComponent(pos);
-        SubmarineAppearance appearance = new SubmarineAppearance();
-        PhysicalComponent physical = new PhysicalComponent(10000f, 1500f, 0.05f);
-        BubblingComponent bubbling = new BubblingComponent(40, 50, 0.1f, 1f, 10, true, true, true);
-        bubbling.bubblingPosOffset.set(0, 30, 0);
+        location.direction.setFromAxisRad(0, 1, 0, random.nextFloat() * MathUtils.TauFloat);
+        SubmarineAppearance appearance = new SubmarineAppearance(MathUtils.mixAndClamp(sizeFactor, 5f, 100f),
+                                                                 MathUtils.mixAndClamp(sizeFactor, 3f, 16f));
+        PhysicalComponent physical = new PhysicalComponent(10000f, 1000f, 0.05f);
+        BubblingComponent bubbling = new BubblingComponent(10, 30, 0.3f, appearance.width, 10, true, true, true);
+        bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
         return world.createEntity(location, appearance, bubbling, physical);
     }
 

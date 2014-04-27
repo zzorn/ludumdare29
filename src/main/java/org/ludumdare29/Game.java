@@ -75,15 +75,15 @@ public class Game extends ApplicationAdapter {
 
         // Create some submarines
         spread = 100;
-        for (int i = 0; i < 200; i++) {
-            /*
+        for (int i = 0; i < 20; i++) {
+
             tempPos.set((float) random.nextGaussian() * spread,
                         (float) random.nextGaussian() * spread ,
                         (float) random.nextGaussian() * spread);
-                        */
-            tempPos.set((i% 10) * 10 - 100, -i * 2 + 100, (i / 10) * 10 -100  );
 
-            entityFactory.createSubmarine(tempPos);
+            //tempPos.set((i% 10) * 10 - 100, -i * 2 + 100, (i / 10) * 10 -100  );
+
+            entityFactory.createSubmarine(tempPos, random.nextFloat() * random.nextFloat());
         }
     }
 
