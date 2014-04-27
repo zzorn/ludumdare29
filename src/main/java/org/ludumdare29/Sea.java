@@ -1,5 +1,6 @@
 package org.ludumdare29;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import org.flowutils.SimplexGradientNoise;
 import org.flowutils.gradient.Gradient;
@@ -43,13 +44,16 @@ public class Sea {
 
     private final LayeredFlow waterFlow;
 
+    private Vector3 sunDirection = new Vector3(0.2f, 1, 0.1f).nor();
+    private Color sunLightColor = new Color(1, 0.9f, 0.8f, 0.8f);
+
     public Sea() {
         waterFlow = new LayeredFlow(new Random(),
-                                    300, 0.8,
+                                    300, 1.5,
                                     20, 0.3,
                                     2, 0.2,
-                                    2000, 0.6,
-                                    100, 0.1,
+                                    6000, 0.6,
+                                    300, 0.1,
                                     10, 0.01,
                                     2, 7, 20, 100, 300, 800, 2000, 6000);
     }
@@ -62,6 +66,13 @@ public class Sea {
      * @return sea level (y height of water surface) at the specified position.
      */
     public float getSeaLevel(Vector3 pos) {
+        return seaLevel;
+    }
+
+    /**
+     * @return rough average sea level (y height of water surface)
+     */
+    public float getAverageSeaLevel() {
         return seaLevel;
     }
 
@@ -83,7 +94,7 @@ public class Sea {
 
         final float depth = getDepth(pos);
 
-        if (depth > 0) {
+        if (depth >= -1) {
             // Ocean currents
             waterFlow.getFlowXZ(pos, currentOut);
         }
@@ -156,5 +167,13 @@ public class Sea {
         return Math.pow(base, exponent);
     }
 
+
+    public Vector3 getSunDirection() {
+        return sunDirection;
+    }
+
+    public Color getSunLightColor() {
+        return sunLightColor;
+    }
 
 }

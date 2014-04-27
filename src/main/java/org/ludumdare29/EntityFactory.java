@@ -34,7 +34,7 @@ public final class EntityFactory {
         location.direction.setFromAxisRad(0, 1, 0, random.nextFloat() * MathUtils.TauFloat);
         SubmarineAppearance appearance = new SubmarineAppearance(MathUtils.mixAndClamp(sizeFactor, 5f, 100f),
                                                                  MathUtils.mixAndClamp(sizeFactor, 3f, 16f));
-        PhysicalComponent physical = new PhysicalComponent(10000f, 500f, 0.1f);
+        PhysicalComponent physical = new PhysicalComponent(10000f, random.nextFloat() * 200f + 900f, 0.1f);
         BubblingComponent bubbling = new BubblingComponent(10, 30, 0.3f, appearance.width, 10, true, true, true);
         bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
         return world.createEntity(location, appearance, bubbling, physical);
@@ -103,7 +103,7 @@ public final class EntityFactory {
     public Entity createBubble(Vector3 pos, float diam_m, float lifeTime_seconds) {
         if (diam_m > 0 && lifeTime_seconds > 0 && sea.getDepth(pos) > BubbleProcessor.BUBBLE_POP_DEPTH) {
             final float radius = diam_m * 0.5f;
-            final Color color = new Color(0.8f, 0.9f, 1f, 1);
+            final Color color = new Color(0.6f, 0.6f, 0.6f, 0.5f);
             final BubbleAppearance appearance = new BubbleAppearance(color);
             final LocationComponent location = new LocationComponent(pos);
             final PhysicalComponent physical = PhysicalComponent.fromRadiusAndDensity(radius, Sea.AIR_DENSITY_AT_SEA_LEVEL);

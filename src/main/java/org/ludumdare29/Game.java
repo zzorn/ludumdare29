@@ -47,7 +47,7 @@ public class Game extends ApplicationAdapter {
         world.addProcessor(new BubblingProcessor(entityFactory));
         bubbleProcessor = world.addProcessor(new BubbleProcessor(sea));
         physicsProcessor = world.addProcessor(new PhysicsProcessor(sea));
-        renderingProcessor = world.addProcessor(new RenderingProcessor(new OceanShader()));
+        renderingProcessor = world.addProcessor(new RenderingProcessor(new OceanShader(sea)));
 
         // Create 3D application
         new LwjglApplication(this, NAME, 1000, 800);
@@ -75,7 +75,7 @@ public class Game extends ApplicationAdapter {
 
         // Create some submarines
         spread = 100;
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
 
             tempPos.set((float) random.nextGaussian() * spread,
                         (float) random.nextGaussian() * spread ,
