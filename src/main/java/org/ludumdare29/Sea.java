@@ -1,7 +1,12 @@
 package org.ludumdare29;
 
 import com.badlogic.gdx.math.Vector3;
+import org.flowutils.SimplexGradientNoise;
 import org.flowutils.gradient.Gradient;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import static org.flowutils.MathUtils.*;
 
@@ -36,7 +41,13 @@ public class Sea {
             10000,  ZERO_CELSIUS_K + 1.5f
     );
 
+    private final LayeredFlow waterFlow;
+
     public Sea() {
+        waterFlow = new LayeredFlow(new Random(),
+                                    500, 20, 2, 0.2,
+                                    2000, 100, 1, 0.5,
+                                    2, 7, 20, 100, 300, 800, 2000, 6000);
     }
 
     public boolean isUnderWater(Vector3 pos) {
@@ -65,7 +76,18 @@ public class Sea {
      * @return the current velocity at the specified position
      */
     public Vector3 getCurrent(Vector3 pos, Vector3 currentOut) {
-        currentOut.set(0,0,0);
+
+        final float depth = getDepth(pos);
+
+        if (depth > 0) {
+            // Ocean currents
+            waterFlow.getFlowXZ(pos, currentOut);
+        }
+        else {
+            // No wind
+            currentOut.set(0,0,0);
+        }
+
         return currentOut;
     }
 

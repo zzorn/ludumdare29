@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Matrix4;
 import org.entityflow.entity.Entity;
 import org.entityflow.system.BaseEntityProcessor;
 import org.flowutils.time.Time;
+import org.ludumdare29.OceanShader;
 import org.ludumdare29.components.LocationComponent;
 import org.ludumdare29.components.appearance.AppearanceComponent;
 
@@ -24,10 +25,13 @@ public class RenderingProcessor extends BaseEntityProcessor {
     public Environment environment;
     public CameraInputController camController;
 
+    private final Shader shader;
+
     private final Matrix4 temp = new Matrix4();
 
-    public RenderingProcessor() {
+    public RenderingProcessor(Shader shader) {
         super(RenderingProcessor.class, AppearanceComponent.class, LocationComponent.class);
+        this.shader = shader;
     }
 
     @Override protected void onInit() {
@@ -42,10 +46,13 @@ public class RenderingProcessor extends BaseEntityProcessor {
         cam.far = 300f;
         cam.update();
 
+        // Setup shader
+        shader.init();
+
         // Setup lighting
         environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.1f, 0.2f, 0.3f, 1f));
+        environment.add(new DirectionalLight().set(0.5f, 0.8f, 0.9f, 0.1f, -1f, 0.1f));
 
         // Setup camera control
         camController = new CameraInputController(cam);
@@ -84,6 +91,7 @@ public class RenderingProcessor extends BaseEntityProcessor {
             modelInstance.transform.scl(appearance.getScale());
 
             // Render
+//            modelBatch.render(modelInstance, shader);
             modelBatch.render(modelInstance, environment);
         }
     }
@@ -94,5 +102,6 @@ public class RenderingProcessor extends BaseEntityProcessor {
 
     @Override public void shutdown() {
         modelBatch.dispose();
+        shader.dispose();
     }
 }

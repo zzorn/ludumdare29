@@ -47,7 +47,7 @@ public class Game extends ApplicationAdapter {
         world.addProcessor(new BubblingProcessor(entityFactory));
         bubbleProcessor = world.addProcessor(new BubbleProcessor(sea));
         physicsProcessor = world.addProcessor(new PhysicsProcessor(sea));
-        renderingProcessor = world.addProcessor(new RenderingProcessor());
+        renderingProcessor = world.addProcessor(new RenderingProcessor(new OceanShader()));
 
         // Create 3D application
         new LwjglApplication(this, NAME, 1000, 800);

@@ -34,7 +34,7 @@ public final class EntityFactory {
         location.direction.setFromAxisRad(0, 1, 0, random.nextFloat() * MathUtils.TauFloat);
         SubmarineAppearance appearance = new SubmarineAppearance(MathUtils.mixAndClamp(sizeFactor, 5f, 100f),
                                                                  MathUtils.mixAndClamp(sizeFactor, 3f, 16f));
-        PhysicalComponent physical = new PhysicalComponent(10000f, 1000f, 0.05f);
+        PhysicalComponent physical = new PhysicalComponent(10000f, 500f, 0.1f);
         BubblingComponent bubbling = new BubblingComponent(10, 30, 0.3f, appearance.width, 10, true, true, true);
         bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
         return world.createEntity(location, appearance, bubbling, physical);

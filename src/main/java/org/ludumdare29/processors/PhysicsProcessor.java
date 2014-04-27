@@ -45,23 +45,38 @@ public class PhysicsProcessor extends BaseEntityProcessor {
         final Vector3 velocity = physical.velocity;
         final Vector3 position = location.position;
         final float environment_density = sea.getDensity(position);
+        final float depth = sea.getDepth(position);
+        final float radius_m = physical.getRadius_m();
         final float volume_m3 = physical.getVolume_m3();
         final float crossArea_m2 = physical.getCrossArea_m2();
+
+        // Determine relative density of surroundings, depending on how much in the water / air the thing is
+        final float surroundingDensity;
+        if (depth <= -radius_m || depth >= radius_m) {
+            // Completely in water or air
+            surroundingDensity = environment_density;
+        }
+        else {
+            // Part in water, part in air
+            final float waterPart = (0.5f * depth / radius_m) + 0.5f;
+            surroundingDensity = MathUtils.mix(waterPart, Sea.AIR_DENSITY_AT_SEA_LEVEL, Sea.SEA_DENSITY_AT_SEA_LEVEL);
+        }
+
 
         // Calculate relative velocity in the fluid (water or air)
         sea.getCurrent(position, fluidVelocity);
         relativeVelocity.set(velocity).sub(fluidVelocity);
 
         // Apply buoyancy
-        float buoyancyForce = environment_density * volume_m3 * sea.GRAVITY_AT_SEA_LEVEL;
+        float buoyancyForce = surroundingDensity * volume_m3 * Sea.GRAVITY_AT_SEA_LEVEL;
         force.add(0, buoyancyForce, 0);
 
         // Apply gravitation
-        float gravitationForce = physical.getMass_kg() * sea.GRAVITY_AT_SEA_LEVEL;
+        float gravitationForce = physical.getMass_kg() * Sea.GRAVITY_AT_SEA_LEVEL;
         force.add(0, -gravitationForce, 0);
 
         // Update movement based on forces
-        float movedMass = physical.getMass_kg() + 0.01f * crossArea_m2 * environment_density; // Include some of the mass of the displaced medium, otherwise very light objects move too easily through a heavy medium
+        float movedMass = physical.getMass_kg() + 0.01f * crossArea_m2 * surroundingDensity; // Include some of the mass of the displaced medium, otherwise very light objects move too easily through a heavy medium
         force.scl(deltaTime / movedMass); // delta V = (Force * delta Time) / mass
         velocity.add(force);
 
@@ -69,7 +84,7 @@ public class PhysicsProcessor extends BaseEntityProcessor {
         // DragForce = -0.5 * surroundingDensity * velocityComparedToSurroundings^2 * entityDragConstant * entityCrossSection
         float dragMagnitude = 0.5f *
                               relativeVelocity.len2() *  // Square velocity
-                              environment_density * // Fluid density
+                              surroundingDensity * // Fluid density
                               physical.dragCoefficient *
                               crossArea_m2;
 

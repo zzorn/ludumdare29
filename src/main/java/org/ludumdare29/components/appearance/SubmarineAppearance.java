@@ -28,8 +28,8 @@ public class SubmarineAppearance extends AppearanceComponent {
     public float width = 10f;
     public float relHeight = 1.4f;
     private float tailRelLength = 0.4f;
-    private float relPropLength = 0.8f;
-    private float relPropWidth = 0.4f;
+    private float relPropLength = 0.6f;
+    private float relPropWidth = 0.5f;
 
     private float towerRelPos = 0.35f;
     private float towerRelHeight = 1.3f;
@@ -86,7 +86,7 @@ public class SubmarineAppearance extends AppearanceComponent {
         final Material lighterMaterial = new Material(ColorAttribute.createDiffuse(color.cpy().lerp(LIGHT_TARGET, 0.2f)));
 
         // Body
-        createPointedCapsule(modelBuilder, attributes, material, length, width, relHeight, tailRelLength, tempTransform.idt());
+        createPointedCapsule(modelBuilder, attributes, material, material, length, width, relHeight, tailRelLength, tempTransform.idt());
 
         // Tower
         final float towerWidth = towerRelWidth * width;
@@ -161,6 +161,7 @@ public class SubmarineAppearance extends AppearanceComponent {
     private void createPointedCapsule(ModelBuilder modelBuilder,
                                       int attributes,
                                       Material material,
+                                      Material propMaterial,
                                       float length,
                                       float width,
                                       float aspect,
@@ -189,7 +190,7 @@ public class SubmarineAppearance extends AppearanceComponent {
         final Node node3 = modelBuilder.node();
         final float propLen = width * relPropLength;
         final float propWidth = width * relPropWidth;
-        modelBuilder.part("part", GL20.GL_TRIANGLES, attributes, material).cone(propWidth,
+        modelBuilder.part("part", GL20.GL_TRIANGLES, attributes, propMaterial).cylinder(propWidth,
                                                                                 propLen,
                                                                                 propWidth,
                                                                                 DIVISIONS);
