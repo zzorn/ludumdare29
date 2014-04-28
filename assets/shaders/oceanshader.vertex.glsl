@@ -1,6 +1,6 @@
 
 const float LOG2 = 1.442695;
-const float WATER_FOG_DENSITY = 0.002;
+const float WATER_FOG_DENSITY = 0.001;
 const float AIR_FOG_DENSITY = 0.0001;
 
 uniform int IsSky;

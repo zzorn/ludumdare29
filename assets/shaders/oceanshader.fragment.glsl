@@ -22,15 +22,16 @@ varying float airFogFactor;
 varying float waterFogFactor;
 
 const vec4 AIR_FOG_COLOR = vec4(0.4, 0.5, 0.6, 1.0);
-const vec4 WATER_FOG_COLOR = vec4(0.0, 0.03,0.1, 1.0);
+const vec4 WATER_FOG_COLOR = vec4(0.001, 0.03, 0.1, 1.0);
 
 const float COLOR_DROPOFF_SHARPNESS = 1.4;
-const float RED_HALF_DEPTH = 30.0;
-const float GREEN_HALF_DEPTH = 80.0;
-const float BLUE_HALF_DEPTH = 150.0;
-const float SUNLIGHT_BOOST = 3.0;
+const float RED_HALF_DEPTH = 2*30.0;
+const float GREEN_HALF_DEPTH = 2*80.0;
+const float BLUE_HALF_DEPTH = 2*150.0;
+const float SUNLIGHT_BOOST = 3;
 const float EXTRA_SUNLIGHT_BOOST_ABOVE_SURFACE = 1.5;
-const vec4 AMBIENT_LIGHT = vec4(0.02, 0.03, 0.1, 1.0);
+const vec4 AMBIENT_LIGHT = vec4(0.04, 0.06, 0.2, 1.0);
+const vec4 SURFACE_AMBIENT_LIGHT = vec4(0.1, 0.2, 0.3, 1.0);
 const vec3 DOWN = vec3(0.0, -1.0, 0.0);
 const float REFLECTION_STRENGTH = 1.5;
 const float SURFACE_LIGHT_BOUNDARY_DEPTH = 0.5;
@@ -85,6 +86,12 @@ void renderObject(vec3 norm) {
 
     // Ambient light from surrounding water
     gl_FragColor += u_color * AMBIENT_LIGHT * depthAdjust;
+
+    // Ambient light near surface
+    float surfaceAmbientAmount = 1.0 - depth * depth * 0.00001f;
+    if (surfaceAmbientAmount > 0) {
+        gl_FragColor += u_color * SURFACE_AMBIENT_LIGHT * surfaceAmbientAmount;
+    }
 
 }
 

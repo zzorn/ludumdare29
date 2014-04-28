@@ -29,12 +29,20 @@ public final class EntityFactory {
         this.sea = sea;
     }
 
-    public Entity createSubmarine(Vector3 pos, float sizeFactor, float sleekness) {
+    public Entity createSubmarine(Vector3 pos, float sizeFactor, float sleekness, Color accentColor) {
         LocationComponent location = new LocationComponent(pos);
         location.direction.setFromAxisRad(0, 1, 0, random.nextFloat() * TauFloat);
 
+        final Color baseColor = new Color(0.14f, 0.12f, 0.16f, 1f);
+        baseColor.r *= 1f + (float) random.nextGaussian() * 0.03f;
+        baseColor.g *= 1f + (float) random.nextGaussian() * 0.03f;
+        baseColor.b *= 1f + (float) random.nextGaussian() * 0.03f;
+        baseColor.mul(random.nextFloat() * 0.2f + 0.9f);
+        baseColor.clamp();
         SubmarineAppearance appearance = new SubmarineAppearance(mixAndClamp(sizeFactor, 5f, 100f),
-                                                                 mixAndClamp(sizeFactor, 3f, 16f) * mixAndClamp(sleekness, 1.5f, 0.5f));
+                                                                 mixAndClamp(sizeFactor, 3f, 16f) * mixAndClamp(sleekness, 1.5f, 0.5f),
+                                                                 baseColor,
+                                                                 accentColor);
 
         final float mass_kg = mixAndClamp(sizeFactor, 10000f, 100000f);
         final float dragCoefficient  = mixAndClamp(sleekness, 0.5f, 0.03f);
@@ -51,14 +59,14 @@ public final class EntityFactory {
     }
 
     public Entity createPlayerSubmarine(Vector3 pos, float sizeFactor, float sleekness, InputMultiplexer inputMultiplexer) {
-        final Entity playerSubmarine = createSubmarine(pos, sizeFactor, sleekness);
+        final Entity playerSubmarine = createSubmarine(pos, sizeFactor, sleekness, new Color(0.3f, 0.3f, 0.95f, 1f));
 
         inputMultiplexer.addProcessor(playerSubmarine.getComponent(ShipComponent.class).getInputHandler());
         inputMultiplexer.addProcessor(playerSubmarine.getComponent(SubmarineComponent.class).getInputHandler());
 
         // Add a first person view camera
         world.createEntity(new LocationComponent(pos),
-                           new CameraComponent(playerSubmarine, 67, false),
+                           new CameraComponent(playerSubmarine, 80, false),
                            new TrackingComponent(playerSubmarine, new Vector3(0, 6, 0)));
 
         // Add bridge view

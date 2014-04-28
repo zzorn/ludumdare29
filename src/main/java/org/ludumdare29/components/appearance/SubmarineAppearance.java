@@ -22,7 +22,7 @@ import static org.flowutils.MathUtils.*;
  */
 public class SubmarineAppearance extends AppearanceComponent {
 
-    private static final int DIVISIONS = 16;
+    private static final int DIVISIONS = 64;
     private static final Color DARK_TARGET = new Color(0,0,0.2f, 1);
     private static final Color LIGHT_TARGET = new Color(0.2f, 0.2f, 0f, 1f);
     public float length = 40f;
@@ -56,6 +56,7 @@ public class SubmarineAppearance extends AppearanceComponent {
 
     private final Matrix4 tempTransform = new Matrix4();
     private Color color;
+    private final Color accentColor;
 
     private static final Random random = new Random();
 
@@ -64,13 +65,14 @@ public class SubmarineAppearance extends AppearanceComponent {
     }
 
     public SubmarineAppearance(float length, float width) {
-        this(length, width, new Color(0.3f, 0.3f, 0.4f, 1f));
+        this(length, width, new Color(0.3f, 0.3f, 0.4f, 1f), new Color(0.8f, 0.1f, 0.2f, 1f));
     }
 
-    public SubmarineAppearance(float length, float width, Color color) {
+    public SubmarineAppearance(float length, float width, Color color, Color accentColor) {
         this.length = length;
         this.width = width;
         this.color = color;
+        this.accentColor = accentColor;
     }
 
     @Override protected ModelInstance createAppearance() {
@@ -83,6 +85,7 @@ public class SubmarineAppearance extends AppearanceComponent {
                                VertexAttributes.Usage.TextureCoordinates;
 
         final Material material = new Material(ColorAttribute.createDiffuse(color));
+        final Material accentMaterial = new Material(ColorAttribute.createDiffuse(accentColor));
         final Material darkerMaterial = new Material(ColorAttribute.createDiffuse(color.cpy().lerp(DARK_TARGET, 0.2f)));
         final Material lighterMaterial = new Material(ColorAttribute.createDiffuse(color.cpy().lerp(LIGHT_TARGET, 0.2f)));
 
@@ -98,6 +101,14 @@ public class SubmarineAppearance extends AppearanceComponent {
                            towerHeight,
                            towerWidth,
                            towerLength).translation.set(towerPos, width / 2, 0);
+
+        // Color band on tower
+        float accentHeight = mix(random.nextFloat(), 0.3f, 0.8f);
+        float accentThickness = mix(random.nextFloat(), 1.01f, 1.2f);
+        createOvalCylinder(modelBuilder, attributes, accentMaterial,
+                           towerHeight * accentHeight,
+                           towerWidth * accentThickness,
+                           towerLength * accentThickness).translation.set(towerPos, width / 2, 0);
 
         // Tower fins
         fins(modelBuilder, attributes, darkerMaterial, towerWidth, towerHeight, sailFinWidth, sailFinLength, sailFinThickness, towerRelPos, sailRelPos, 0);

@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import org.entityflow.entity.Entity;
 import org.entityflow.persistence.NoPersistence;
@@ -99,7 +100,8 @@ public class Game extends ApplicationAdapter {
 
             entityFactory.createSubmarine(tempPos,
                                           random.nextFloat() * random.nextFloat(),
-                                          random.nextFloat() * random.nextFloat());
+                                          random.nextFloat() * random.nextFloat(),
+                                          new Color(0.95f, 0.05f, 0.2f, 1));
         }
     }
 
