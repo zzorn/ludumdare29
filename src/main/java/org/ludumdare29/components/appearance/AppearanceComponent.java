@@ -16,6 +16,8 @@ public abstract class AppearanceComponent extends BaseComponent {
     private float scale = 1;
     private final Vector3 offset = new Vector3();
 
+    private boolean visible = true;
+
 
     protected AppearanceComponent() {
         super(AppearanceComponent.class);
@@ -43,6 +45,14 @@ public abstract class AppearanceComponent extends BaseComponent {
 
     public void setOffset(float x, float y, float z) {
         this.offset.set(x, y, z);
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public final ModelInstance getAppearance() {

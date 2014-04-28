@@ -2,11 +2,9 @@ package org.ludumdare29;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
-import org.flowutils.SimplexGradientNoise;
 import org.flowutils.gradient.Gradient;
+import org.ludumdare29.utils.LayeredFlow;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import static org.flowutils.MathUtils.*;

@@ -11,6 +11,7 @@ import org.ludumdare29.components.LocationComponent;
 import org.ludumdare29.components.PhysicalComponent;
 import org.ludumdare29.components.ShipComponent;
 import org.ludumdare29.components.SubmarineComponent;
+import org.ludumdare29.parts.AlarmStatus;
 
 import static org.flowutils.MathUtils.*;
 
@@ -43,11 +44,33 @@ public class SubmarineProcessor extends BaseEntityProcessor {
         // Update controls etc
         submarine.update(secondsSinceLastStep);
 
-        // Turn off diesel powered things if we are at dive depth
-        if (sea.getDepth(location.position) > submarine.diveDepth_m) {
+        boolean currentlyAtDiveDepth = sea.getDepth(location.position) > submarine.diveDepth_m;
+        if (currentlyAtDiveDepth) {
+            // Turn off diesel powered things if we are at dive depth
             ship.dieselEngineForwardThrust_N.setTarget(0);
             submarine.batteryChargeDelta_Wh_per_s.setTarget(0);
         }
+        else {
+            // Turn off electric drive on surface
+            submarine.electricalMotorThrust_N.setTarget(0);
+        }
+
+        if (submarine.diveDepth != currentlyAtDiveDepth) {
+            if (currentlyAtDiveDepth) {
+                // When dived
+            }
+            else {
+                // When surfaced
+
+                // Turn on charger when surfacing, if we are low on power
+                if (submarine.batteries_Wh.getAlarmStatus().getCriticality() >= AlarmStatus.WARNING.getCriticality()) {
+                    submarine.batteryChargeDelta_Wh_per_s.setTarget(1);
+                }
+            }
+
+            submarine.diveDepth = currentlyAtDiveDepth;
+        }
+
 
         // Apply submarine fuel consumption
         float fuelConsumption_l_per_s = submarine.dieselConsumptionWhenCharging_l_per_s * submarine.batteryChargeDelta_Wh_per_s.getCurrentPos();
@@ -96,8 +119,7 @@ public class SubmarineProcessor extends BaseEntityProcessor {
         // Apply dive turning
         // TODO: Could do torque later maybe
         tempQ.setFromAxisRad(0, 0, 1, TauFloat * submarine.diveFins_turns_per_sec.getCurrentValue() * secondsSinceLastStep);
-        tempQ.mul(location.direction);
-        location.direction.set(tempQ);
+        location.direction.mul(tempQ);
 
         location.direction.nor();
     }

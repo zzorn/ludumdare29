@@ -3,6 +3,7 @@ package org.ludumdare29.components.appearance;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -111,7 +112,14 @@ public class SubmarineAppearance extends AppearanceComponent {
         createOvalCylinder(modelBuilder, attributes, lighterMaterial, width * antennaRelLength*0.5f, width * antennaRelDiam*1.2f, width * antennaRelDiam)
                 .translation.set(towerPos + random.nextFloat() * towerLength/2-towerLength/4, width, random.nextFloat() * towerWidth/3);
 
-        return new ModelInstance(modelBuilder.end());
+        final Model model = modelBuilder.end();
+
+        // Center
+        for (Node node : model.nodes) {
+            node.translation.add(-length*0.5f, 0, 0);
+        }
+
+        return new ModelInstance(model);
     }
 
     private void fins(ModelBuilder modelBuilder,
@@ -204,6 +212,10 @@ public class SubmarineAppearance extends AppearanceComponent {
     }
 
     public Vector3 getHatchOffset() {
-        return new Vector3(length * towerRelPos, width * towerRelHeight, 0);
+        return new Vector3(length * towerRelPos - length * 0.5f, width * towerRelHeight * 1.1f, 0);
+    }
+
+    public Vector3 getCenterOffset() {
+        return new Vector3(0, 0, 0);
     }
 }

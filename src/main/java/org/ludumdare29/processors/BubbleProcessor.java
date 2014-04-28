@@ -21,6 +21,10 @@ public class BubbleProcessor extends BaseEntityProcessor {
     public static final float BUBBLE_POP_DEPTH = 0.1f;
     private static final float BUBBLE_DRIFT_FORCE = 1f;
     private static final float MAX_SURFACE_BUBBLE_RADIUS = 0.2f;
+
+    private static final float BUBBLE_FADE_OUT_SECONDS = 2f;
+    private static final float BUBBLE_FADE_IN_SECONDS = 1f;
+
     private final Sea sea;
 
     private static final double BASIC_WOBBLES_PER_SEC = 1f;
@@ -51,8 +55,8 @@ public class BubbleProcessor extends BaseEntityProcessor {
 
         // Update appearance size
         final float radius = physical.getRadius_m();
-        final float fadeOutFactor = mapAndClamp(secondsLeft, 5, 0, 1f, 0.000001f);
-        final float fadeInFactor = mapAndClamp(bubble.age_seconds, 0, 1, 0.000001f, 1f);
+        final float fadeInFactor = mapAndClamp(bubble.age_seconds, 0, BUBBLE_FADE_IN_SECONDS, 0.000001f, 1f);
+        final float fadeOutFactor = mapAndClamp(secondsLeft, BUBBLE_FADE_OUT_SECONDS, 0, 1f, 0.000001f);
         final float visibleScale = fadeInFactor * fadeOutFactor * radius * 2 * APPEARANCE_SCALE_FACTOR;
         appearance.setScale(visibleScale);
 

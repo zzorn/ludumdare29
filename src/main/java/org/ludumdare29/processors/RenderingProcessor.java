@@ -7,17 +7,17 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.DepthTestAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.model.Node;
-import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
 import org.entityflow.entity.Entity;
 import org.entityflow.system.BaseEntityProcessor;
+import org.flowutils.MathUtils;
 import org.flowutils.time.Time;
-import org.ludumdare29.SkyAttribute;
+import org.ludumdare29.shader.SkyAttribute;
 import org.ludumdare29.components.LocationComponent;
 import org.ludumdare29.components.appearance.AppearanceComponent;
 
@@ -26,17 +26,18 @@ import org.ludumdare29.components.appearance.AppearanceComponent;
  */
 public class RenderingProcessor extends BaseEntityProcessor {
 
-    public PerspectiveCamera cam;
+    public PerspectiveCamera camera;
     public ModelBatch modelBatch;
     public Environment environment;
     public CameraInputController camController;
 
     private final Shader shader;
 
-    private final Matrix4 temp = new Matrix4();
     private ModelInstance skySphere;
 
     private final Renderable tempRenderable = new Renderable();
+
+    private Entity cameraHostEntity;
 
     public RenderingProcessor(Shader shader) {
         super(RenderingProcessor.class, AppearanceComponent.class, LocationComponent.class);
@@ -48,12 +49,12 @@ public class RenderingProcessor extends BaseEntityProcessor {
         modelBatch = new ModelBatch();
 
         // Setup camera
-        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(10f, 10f, 10f);
-        cam.lookAt(0,0,0);
-        cam.near = 1f;
-        cam.far = 1000f;
-        cam.update();
+        camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.position.set(10f, 10f, 10f);
+        camera.lookAt(0,0,0);
+        camera.near = 1f;
+        camera.far = 1000f;
+        camera.update();
 
         // Setup shader
         shader.init();
@@ -79,23 +80,20 @@ public class RenderingProcessor extends BaseEntityProcessor {
 
 
         // Setup camera control
-        camController = new CameraInputController(cam);
-        Gdx.input.setInputProcessor(camController);
+        //camController = new CameraInputController(camera);
+        //Gdx.input.setInputProcessor(camController);
     }
 
     @Override protected void preProcess(Time time) {
-        // Update from input
-        camController.update();
-
         // Clear screen
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         // Render scene
-        modelBatch.begin(cam);
+        modelBatch.begin(camera);
 
         // Move sky to center on camera
-        skySphere.transform.setTranslation(cam.position);
+        skySphere.transform.setTranslation(camera.position);
 
         // Render sky
         modelBatch.render(skySphere, shader);
@@ -105,7 +103,7 @@ public class RenderingProcessor extends BaseEntityProcessor {
         final LocationComponent location = entity.getComponent(LocationComponent.class);
         final AppearanceComponent appearance = entity.getComponent(AppearanceComponent.class);
 
-        if (appearance != null && location != null) {
+        if (appearance != null && location != null && appearance.isVisible()) {
             final ModelInstance modelInstance = appearance.getAppearance();
 
             // Apply direction
@@ -134,5 +132,17 @@ public class RenderingProcessor extends BaseEntityProcessor {
     @Override public void shutdown() {
         modelBatch.dispose();
         shader.dispose();
+    }
+
+    public Entity getCameraHostEntity() {
+        return cameraHostEntity;
+    }
+
+    public void setCameraHostEntity(Entity cameraHostEntity) {
+        this.cameraHostEntity = cameraHostEntity;
+    }
+
+    public PerspectiveCamera getCamera() {
+        return camera;
     }
 }

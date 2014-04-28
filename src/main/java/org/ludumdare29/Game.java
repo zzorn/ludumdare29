@@ -1,12 +1,16 @@
 package org.ludumdare29;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.math.Vector3;
+import org.entityflow.entity.Entity;
 import org.entityflow.persistence.NoPersistence;
 import org.entityflow.world.ConcurrentWorld;
 import org.flowutils.time.RealTime;
 import org.ludumdare29.processors.*;
+import org.ludumdare29.shader.OceanShader;
 
 import java.util.Random;
 
@@ -26,6 +30,7 @@ public class Game extends ApplicationAdapter {
     private Vector3 tempPos;
     private EntityFactory entityFactory;
     private ShipProcessor shipProcessor;
+    private final InputMultiplexer inputHandler = new InputMultiplexer();
 
     public static void main(String[] args) {
         Game game = new Game();
@@ -36,18 +41,20 @@ public class Game extends ApplicationAdapter {
     private void start() {
         // Create world
         time = new RealTime();
-        world = new ConcurrentWorld(time, new NoPersistence(), SIMULATION_STEP_MILLISECONDS);
+        world = new ConcurrentWorld(time, SIMULATION_STEP_MILLISECONDS);
         sea = new Sea();
 
         entityFactory = new EntityFactory(world, sea);
 
         // Add processors
+        world.addProcessor(new TrackingProcessor());
         world.addProcessor(new BubblingProcessor(entityFactory));
         bubbleProcessor = world.addProcessor(new BubbleProcessor(sea));
         physicsProcessor = world.addProcessor(new PhysicsProcessor(sea));
         renderingProcessor = world.addProcessor(new RenderingProcessor(new OceanShader(sea)));
         shipProcessor = world.addProcessor(new ShipProcessor());
         world.addProcessor(new SubmarineProcessor(sea));
+        world.addProcessor(new CameraProcessor(renderingProcessor, inputHandler));
 
         // Create 3D application
         new LwjglApplication(this, NAME, 1000, 800);
@@ -55,12 +62,19 @@ public class Game extends ApplicationAdapter {
 
 
     @Override public void create() {
+        // Setup input handler
+        Gdx.input.setInputProcessor(inputHandler);
+
         // Initialize processors
         world.init();
 
+        tempPos = new Vector3();
+
+        // Create player submarine
+        final Entity player = entityFactory.createPlayerSubmarine(tempPos.set(0, 0, 0), 0.5f, 0.5f, inputHandler);
+
         // Create some bubbles
         Random random = new Random();
-        tempPos = new Vector3();
         float spread = 2000;
         for (int i = 0; i < 20; i++) {
 
@@ -83,7 +97,9 @@ public class Game extends ApplicationAdapter {
 
             //tempPos.set((i% 10) * 10 - 100, -i * 2 + 100, (i / 10) * 10 -100  );
 
-            entityFactory.createSubmarine(tempPos, random.nextFloat() * random.nextFloat());
+            entityFactory.createSubmarine(tempPos,
+                                          random.nextFloat() * random.nextFloat(),
+                                          random.nextFloat() * random.nextFloat());
         }
     }
 

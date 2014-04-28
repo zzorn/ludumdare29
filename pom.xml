@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.entityflow</groupId>
             <artifactId>entityflow</artifactId>
-            <version>0.3</version>
+            <version>0.4</version>
         </dependency>
 
         <!-- 3D rendering library API -->

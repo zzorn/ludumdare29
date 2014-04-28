@@ -1,16 +1,19 @@
 package org.ludumdare29;
 
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import org.entityflow.entity.Entity;
 import org.entityflow.world.World;
-import org.flowutils.MathUtils;
 import org.ludumdare29.components.*;
+import org.ludumdare29.components.appearance.AppearanceComponent;
 import org.ludumdare29.components.appearance.BubbleAppearance;
 import org.ludumdare29.components.appearance.SubmarineAppearance;
 import org.ludumdare29.processors.BubbleProcessor;
 
 import java.util.Random;
+
+import static org.flowutils.MathUtils.*;
 
 /**
  * Used for creating various types of entities.
@@ -26,18 +29,57 @@ public final class EntityFactory {
         this.sea = sea;
     }
 
-    public Entity createSubmarine(Vector3 pos, float sizeFactor) {
+    public Entity createSubmarine(Vector3 pos, float sizeFactor, float sleekness) {
         LocationComponent location = new LocationComponent(pos);
-        location.direction.setFromAxisRad(0, 1, 0, random.nextFloat() * MathUtils.TauFloat);
-        SubmarineAppearance appearance = new SubmarineAppearance(MathUtils.mixAndClamp(sizeFactor, 5f, 100f),
-                                                                 MathUtils.mixAndClamp(sizeFactor, 3f, 16f));
-        PhysicalComponent physical = new PhysicalComponent(10000f, random.nextFloat() * 200f + 900f, 0.1f);
-        BubblingComponent bubbling = new BubblingComponent(7, 30, 0.3f, appearance.width*0.5f, 15, true, true, true);
+        location.direction.setFromAxisRad(0, 1, 0, random.nextFloat() * TauFloat);
+
+        SubmarineAppearance appearance = new SubmarineAppearance(mixAndClamp(sizeFactor, 5f, 100f),
+                                                                 mixAndClamp(sizeFactor, 3f, 16f) * mixAndClamp(sleekness, 1.5f, 0.5f));
+
+        final float mass_kg = mixAndClamp(sizeFactor, 10000f, 100000f);
+        final float dragCoefficient  = mixAndClamp(sleekness, 0.5f, 0.03f);
+        PhysicalComponent physical = new PhysicalComponent(mass_kg, 1000f, dragCoefficient);
+
+        BubblingComponent bubbling = new BubblingComponent(7, 30, 0.3f, appearance.width*0.5f, 15, true, true, true, false);
         bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
+
         SubmarineComponent submarine = new SubmarineComponent();
+
         ShipComponent ship = new ShipComponent();
+
         return world.createEntity(location, appearance, bubbling, physical, ship, submarine);
     }
+
+    public Entity createPlayerSubmarine(Vector3 pos, float sizeFactor, float sleekness, InputMultiplexer inputMultiplexer) {
+        final Entity playerSubmarine = createSubmarine(pos, sizeFactor, sleekness);
+
+        inputMultiplexer.addProcessor(playerSubmarine.getComponent(ShipComponent.class).getInputHandler());
+        inputMultiplexer.addProcessor(playerSubmarine.getComponent(SubmarineComponent.class).getInputHandler());
+
+        // Add a first person view camera
+        world.createEntity(new LocationComponent(pos),
+                           new CameraComponent(playerSubmarine, 67, false),
+                           new TrackingComponent(playerSubmarine, new Vector3(0, 6, 0)));
+
+        // Add bridge view
+        final Vector3 hatchOffset = ((SubmarineAppearance) playerSubmarine.getComponent(AppearanceComponent.class)).getHatchOffset();
+        world.createEntity(new LocationComponent(pos),
+                           new CameraComponent(null, 70, true),
+                           new TrackingComponent(playerSubmarine, hatchOffset.cpy().add(-1, 0, 0)));
+
+        // Add rear view camera
+        world.createEntity(new LocationComponent(pos),
+                           new CameraComponent(null, 90, true),
+                           new TrackingComponent(playerSubmarine, new Vector3(80, 30, 0)));
+
+        // Add a bubble cloud around the player to help visually orient them
+        world.createEntity(new LocationComponent(pos),
+                           new BubblingComponent(0.5f, 20, 0.05f, 200, 6, true, false, true, false),
+                           new TrackingComponent(playerSubmarine, new Vector3(0, -20, 0)));
+
+        return playerSubmarine;
+    }
+
 
     /**
      * Creates a cloud of bubbles of varying sizes around the specified location.
@@ -58,8 +100,8 @@ public final class EntityFactory {
 
         for (int i = 0; i < numBubbles; i++) {
             float relPos = (i + 1f) / numBubbles;
-            float size = MathUtils.mix(relPos * relPos * relPos, averageBubbleDiam_m * 0.25f, averageBubbleDiam_m * 4f);
-            float lifeTime = MathUtils.mix(relPos * relPos, lifeTime_seconds * 0.5f, lifeTime_seconds * 1.5f);
+            float size = mix(relPos * relPos * relPos, averageBubbleDiam_m * 0.25f, averageBubbleDiam_m * 4f);
+            float lifeTime = mix(relPos * relPos, lifeTime_seconds * 0.5f, lifeTime_seconds * 1.5f);
 
             bubblePos.set(pos);
             bubblePos.add(randomNormalDistributed(bubbleCloudDiam_m),

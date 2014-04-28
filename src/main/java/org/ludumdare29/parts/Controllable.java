@@ -1,5 +1,8 @@
 package org.ludumdare29.parts;
 
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputProcessor;
 import org.flowutils.Check;
 
 import static org.flowutils.Check.*;
@@ -9,8 +12,9 @@ import static org.flowutils.MathUtils.*;
 /**
  * Some controllable thing, e.g. engine thrust.
  * Has support for min and max value, desired value, actual target value, and current value.
+ * Can also update the control based on input.
  */
-public final class Controllable {
+public final class Controllable extends InputAdapter {
 
     private String name;
 
@@ -32,6 +36,16 @@ public final class Controllable {
 
     private int controlSteps = 8;
 
+    private int increaseKeyCode;
+    private int decreaseKeyCode;
+    private float secondsToMoveAControlStepWhenKeyPressed = 1f;
+    private boolean returnToZeroWhenKeyReleased = false;
+
+    private float secondsUntilNextControlStep = 0;
+    private boolean increaseKeyPressed = false;
+    private boolean decreaseKeyPressed = false;
+
+
     /**
      * A new controllable with a minimum value of -1, a zero value of 0, and a max value of 1, and 0 second controller lag.
      * @param name A name for this controllable object, for use in UI:s etc.
@@ -46,8 +60,8 @@ public final class Controllable {
      * @param maxValue maximum value (for 1 position)
      * @param controlLag_seconds seconds it takes for the current value to change from zero to max.
      */
-    public Controllable(String name, float zeroValue, float maxValue, float controlLag_seconds, int controlSteps) {
-        this(name, zeroValue, zeroValue, maxValue, controlLag_seconds, false, controlSteps);
+    public Controllable(String name, float zeroValue, float maxValue, float controlLag_seconds, int controlSteps, int increaseKeyCode, int decreaseKeyCode, float secondsToMoveAStepWhenKeyPressed, boolean returnToZeroWhenKeyReleased) {
+        this(name, zeroValue, zeroValue, maxValue, controlLag_seconds, false, controlSteps, increaseKeyCode, decreaseKeyCode, secondsToMoveAStepWhenKeyPressed, returnToZeroWhenKeyReleased);
     }
 
     /**
@@ -57,8 +71,8 @@ public final class Controllable {
      * @param maxValue maximum value (for 1 position)
      * @param controlLag_seconds seconds it takes for the current value to change from zero to max.
      */
-    public Controllable(String name, float minValue, float zeroValue, float maxValue, float controlLag_seconds, int controlSteps) {
-        this(name, minValue, zeroValue, maxValue, controlLag_seconds, true, controlSteps);
+    public Controllable(String name, float minValue, float zeroValue, float maxValue, float controlLag_seconds, int controlSteps, int increaseKeyCode, int decreaseKeyCode, float secondsToMoveAStepWhenKeyPressed, boolean returnToZeroWhenKeyReleased) {
+        this(name, minValue, zeroValue, maxValue, controlLag_seconds, true, controlSteps, increaseKeyCode, decreaseKeyCode, secondsToMoveAStepWhenKeyPressed, returnToZeroWhenKeyReleased);
     }
 
     private Controllable(String name,
@@ -67,10 +81,18 @@ public final class Controllable {
                         float maxValue,
                         float controlLag_seconds,
                         boolean allowNegativeTargetPos,
-                        int controlSteps) {
+                        int controlSteps,
+                        int increaseKeyCode,
+                        int decreaseKeyCode,
+                        float secondsToMoveAStepWhenKeyPressed,
+                        boolean returnToZeroWhenKeyReleased) {
         setName(name);
         setControlLag_seconds(controlLag_seconds);
         setControlSteps(controlSteps);
+        setIncreaseKeyCode(increaseKeyCode);
+        setDecreaseKeyCode(decreaseKeyCode);
+        setSecondsToMoveAControlStepWhenKeyPressed(secondsToMoveAStepWhenKeyPressed);
+        setReturnToZeroWhenKeyReleased(returnToZeroWhenKeyReleased);
 
         init(minValue, zeroValue, maxValue, allowNegativeTargetPos);
     }
@@ -232,18 +254,39 @@ public final class Controllable {
         return Math.abs(currentPos);
     }
 
-    /**
-     * Update current value depending on target over time.
-     */
-    public void update(float secondsSinceLastUpdate) {
-        // Get position to move towards
-        float actualTargetPos = calculateActualTargetPos();
+    public int getIncreaseKeyCode() {
+        return increaseKeyCode;
+    }
 
-        // Move towards the specified position
-        updateCurrentPos(secondsSinceLastUpdate, actualTargetPos);
+    public void setIncreaseKeyCode(int increaseKeyCode) {
+        this.increaseKeyCode = increaseKeyCode;
+        increaseKeyPressed = false;
+    }
 
-        // Update value based on new position
-        updateCurrentValueFromCurrentPos();
+    public int getDecreaseKeyCode() {
+        return decreaseKeyCode;
+    }
+
+    public void setDecreaseKeyCode(int decreaseKeyCode) {
+        this.decreaseKeyCode = decreaseKeyCode;
+        decreaseKeyPressed = false;
+    }
+
+    public float getSecondsToMoveAControlStepWhenKeyPressed() {
+        return secondsToMoveAControlStepWhenKeyPressed;
+    }
+
+    public void setSecondsToMoveAControlStepWhenKeyPressed(float secondsToMoveAControlStepWhenKeyPressed) {
+        Check.positive(secondsToMoveAControlStepWhenKeyPressed, "secondsToMoveAControlStepWhenKeyPressed");
+        this.secondsToMoveAControlStepWhenKeyPressed = secondsToMoveAControlStepWhenKeyPressed;
+    }
+
+    public boolean isReturnToZeroWhenKeyReleased() {
+        return returnToZeroWhenKeyReleased;
+    }
+
+    public void setReturnToZeroWhenKeyReleased(boolean returnToZeroWhenKeyReleased) {
+        this.returnToZeroWhenKeyReleased = returnToZeroWhenKeyReleased;
     }
 
     /**
@@ -254,6 +297,76 @@ public final class Controllable {
         return functional &&
                !jammed &&
                targetPos != currentPos;
+    }
+
+    /**
+     * Update current value depending on target over time.
+     */
+    public void update(float secondsSinceLastUpdate) {
+        // Handle any inputs
+        handleInputs(secondsSinceLastUpdate);
+
+        // Get position to move towards
+        float actualTargetPos = calculateActualTargetPos();
+
+        // Move towards the specified position
+        updateCurrentPos(secondsSinceLastUpdate, actualTargetPos);
+
+        // Update value based on new position
+        updateCurrentValueFromCurrentPos();
+    }
+
+    private void handleInputs(float secondsSinceLastUpdate) {
+        if (increaseKeyPressed != decreaseKeyPressed) {
+            // If either key but not both pressed
+
+            secondsUntilNextControlStep -= secondsSinceLastUpdate;
+
+            if (secondsUntilNextControlStep <= 0) {
+                secondsUntilNextControlStep = secondsToMoveAControlStepWhenKeyPressed;
+
+                // Update target based on key
+                if (increaseKeyPressed) {
+                    increaseTarget();
+                }
+                else {
+                    decreaseTarget();
+                }
+            }
+        }
+        else {
+            // No key or both keys pressed
+            secondsUntilNextControlStep = 0;
+
+            // Return to zero when keys released, if configured that way
+            if (returnToZeroWhenKeyReleased && !increaseKeyPressed && !decreaseKeyPressed) {
+                setTarget(0);
+            }
+        }
+    }
+
+    @Override public boolean keyDown(int keycode) {
+        if (keycode == increaseKeyCode) {
+            increaseKeyPressed = true;
+        }
+
+        if (keycode == decreaseKeyCode) {
+            decreaseKeyPressed = true;
+        }
+
+        return false;
+    }
+
+    @Override public boolean keyUp(int keycode) {
+        if (keycode == increaseKeyCode) {
+            increaseKeyPressed = false;
+        }
+
+        if (keycode == decreaseKeyCode) {
+            decreaseKeyPressed = false;
+        }
+
+        return false;
     }
 
     private float calculateActualTargetPos() {

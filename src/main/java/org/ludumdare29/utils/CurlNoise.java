@@ -1,4 +1,4 @@
-package org.ludumdare29;
+package org.ludumdare29.utils;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;

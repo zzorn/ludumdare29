@@ -1,7 +1,8 @@
-package org.ludumdare29;
+package org.ludumdare29.utils;
 
 import com.badlogic.gdx.math.Vector3;
 import org.flowutils.MathUtils;
+import org.ludumdare29.utils.CurlNoise;
 
 import java.util.Random;
 

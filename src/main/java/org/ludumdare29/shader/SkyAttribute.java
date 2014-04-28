@@ -1,4 +1,4 @@
-package org.ludumdare29;
+package org.ludumdare29.shader;
 
 import com.badlogic.gdx.graphics.g3d.Attribute;
 

@@ -54,19 +54,28 @@ public class BubblingProcessor extends BaseEntityProcessor {
             location.direction.transform(pos);
             pos.add(location.position);
 
+            // Cluster or spread out bubbles
+            float cloudDiam = bubbling.bubbleCloudDiam;
+            if (bubbling.clusterBubbles) {
+                pos.add((float) random.nextGaussian() * bubbling.bubbleCloudDiam,
+                        (float) random.nextGaussian() * bubbling.bubbleCloudDiam,
+                        (float) random.nextGaussian() * bubbling.bubbleCloudDiam);
+                cloudDiam *= 0.01f;
+            }
+
             // Create bubbles
             if (bubbling.varyingBubbleSizes) {
                 entityFactory.createVaryingBubbleCloud(pos,
                                                        numBubbles,
                                                        bubbling.bubbleDiam,
-                                                       bubbling.bubbleCloudDiam,
+                                                       cloudDiam,
                                                        bubbling.bubbleLifetime_seconds);
             }
             else {
                 entityFactory.createBubbleCloud(pos,
                                                 numBubbles,
                                                 bubbling.bubbleDiam,
-                                                bubbling.bubbleCloudDiam,
+                                                cloudDiam,
                                                 bubbling.bubbleLifetime_seconds);
             }
 

@@ -16,6 +16,7 @@ public final class BubblingComponent extends BaseComponent {
     public float bubblingInterval_seconds = 10;
     public float bubbleLifetime_seconds = 20;
     public boolean varyingInterval = true;
+    public boolean clusterBubbles = true;
     public Vector3 bubblingPosOffset = new Vector3();
 
     public float secondsUntilNextBubbles = (float) Math.random() * bubblingInterval_seconds;
@@ -25,7 +26,7 @@ public final class BubblingComponent extends BaseComponent {
     }
 
     public BubblingComponent(float bubblingInterval_seconds, int bubbleCount, float bubbleDiam, float bubbleCloudDiam) {
-        this(bubblingInterval_seconds, bubbleCount, bubbleDiam, bubbleCloudDiam, bubblingInterval_seconds * 2f, true, true, true);
+        this(bubblingInterval_seconds, bubbleCount, bubbleDiam, bubbleCloudDiam, bubblingInterval_seconds * 2f, true, true, true, false);
     }
 
     public BubblingComponent(float bubblingInterval_seconds,
@@ -35,7 +36,8 @@ public final class BubblingComponent extends BaseComponent {
                              float bubbleLifetime_seconds,
                              boolean varyingBubbleSizes,
                              boolean varyingBubbleCount,
-                             boolean varyingInterval) {
+                             boolean varyingInterval,
+                             boolean clusterBubbles) {
         this.bubbleCount = bubbleCount;
         this.bubbleDiam = bubbleDiam;
         this.bubbleCloudDiam = bubbleCloudDiam;
@@ -44,6 +46,7 @@ public final class BubblingComponent extends BaseComponent {
         this.bubblingInterval_seconds = bubblingInterval_seconds;
         this.varyingBubbleCount = varyingBubbleCount;
         this.varyingInterval = varyingInterval;
+        this.clusterBubbles = clusterBubbles;
 
         secondsUntilNextBubbles = (float) Math.random() * bubblingInterval_seconds;
     }

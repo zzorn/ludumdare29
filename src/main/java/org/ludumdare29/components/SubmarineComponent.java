@@ -1,5 +1,6 @@
 package org.ludumdare29.components;
 
+import com.badlogic.gdx.Input;
 import org.flowutils.MathUtils;
 import org.ludumdare29.parts.Controllable;
 import org.ludumdare29.parts.Tank;
@@ -9,10 +10,14 @@ import org.ludumdare29.parts.Tank;
  */
 public class SubmarineComponent extends SystemComponent {
 
-    public final Controllable electricalMotorThrust_N = controllable("Electrical Motor", -30000, 0, 70000, 5, 6);
-    public final Controllable diveFins_turns_per_sec = controllable("Dive Fins", -0.01f, 0, 0.01f, 1, 8);
-    public final Controllable altitudeTankPumpSpeed_m3_per_s = controllable("Ballast Tank", -0.1f, 0, 0.1f, 4, 6);
-    public final Controllable batteryChargeDelta_Wh_per_s = controllable("Charge Batteries", 0, 10000, 6, 1);
+    public final Controllable electricalMotorThrust_N = controllable("Electrical Motor", -300000, 0, 700000, 5, 6,
+                                                                     Input.Keys.W, Input.Keys.S, 1f, false);
+    public final Controllable diveFins_turns_per_sec = controllable("Dive Fins", -0.04f, 0, 0.04f, 1, 8,
+                                                                    Input.Keys.R, Input.Keys.F, 0.5f, true);
+    public final Controllable altitudeTankPumpSpeed_m3_per_s = controllable("Ballast Tank", -0.2f, 0, 0.2f, 4, 6,
+                                                                            Input.Keys.PAGE_DOWN, Input.Keys.PAGE_UP, 1f, false);
+    public final Controllable batteryChargeDelta_Wh_per_s = controllable("Charge Batteries", 0, 10000, 6, 1,
+                                                                         Input.Keys.X, Input.Keys.C, 1f, false);
     public final Tank altitudeTank_m3 = tank("Altitude Tank", 3, 0.5f);
     public final Tank batteries_Wh = tank("Batteries", 10000, 0.5f);
 
@@ -31,9 +36,8 @@ public class SubmarineComponent extends SystemComponent {
 
     public float diveDepth_m = 10;
 
+    public boolean diveDepth = false;
+
     public SubmarineComponent() {
-        electricalMotorThrust_N.setTarget(1);
-        diveFins_turns_per_sec.setTarget(0f);
-        //altitudeTankPumpSpeed_m3_per_s.setTarget(-1f);
     }
 }
