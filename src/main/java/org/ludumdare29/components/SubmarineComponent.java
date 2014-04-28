@@ -33,7 +33,7 @@ public class SubmarineComponent extends SystemComponent {
 
     public SubmarineComponent() {
         electricalMotorThrust_N.setTarget(1);
-        diveFins_turns_per_sec.setTarget(0.5f);
-        altitudeTankPumpSpeed_m3_per_s.setTarget(0f);
+        diveFins_turns_per_sec.setTarget(0f);
+        //altitudeTankPumpSpeed_m3_per_s.setTarget(-1f);
     }
 }

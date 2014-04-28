@@ -52,7 +52,7 @@ public class BubbleProcessor extends BaseEntityProcessor {
         // Update appearance size
         final float radius = physical.getRadius_m();
         final float fadeOutFactor = mapAndClamp(secondsLeft, 5, 0, 1f, 0.000001f);
-        final float fadeInFactor = mapAndClamp(bubble.age_seconds, 0, 2, 0.000001f, 1f);
+        final float fadeInFactor = mapAndClamp(bubble.age_seconds, 0, 1, 0.000001f, 1f);
         final float visibleScale = fadeInFactor * fadeOutFactor * radius * 2 * APPEARANCE_SCALE_FACTOR;
         appearance.setScale(visibleScale);
 

@@ -67,6 +67,11 @@ public class SubmarineProcessor extends BaseEntityProcessor {
 
         // Update altitude tank
         submarine.altitudeTank_m3.changeCurrentAmount(submarine.altitudeTankPumpSpeed_m3_per_s.getCurrentValue() * secondsSinceLastStep);
+        if ((submarine.altitudeTankPumpSpeed_m3_per_s.getTargetPos() > 0 && submarine.altitudeTank_m3.isFull() ||
+            (submarine.altitudeTankPumpSpeed_m3_per_s.getTargetPos() < 0 && submarine.altitudeTank_m3.isEmpty()))) {
+            // Shut pump off if we are done
+            submarine.altitudeTankPumpSpeed_m3_per_s.setTarget(0);
+        }
 
         // Update density
         float currentDensity_kg_per_m3 = map(submarine.altitudeTank_m3.getCurrentPos(),

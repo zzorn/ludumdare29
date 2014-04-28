@@ -61,7 +61,7 @@ public class Game extends ApplicationAdapter {
         // Create some bubbles
         Random random = new Random();
         tempPos = new Vector3();
-        float spread = 20;
+        float spread = 2000;
         for (int i = 0; i < 20; i++) {
 
             final float diam = random.nextFloat() * 0.1f + 0.001f;
@@ -75,7 +75,7 @@ public class Game extends ApplicationAdapter {
 
         // Create some submarines
         spread = 100;
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 15; i++) {
 
             tempPos.set((float) random.nextGaussian() * spread,
                         (float) random.nextGaussian() * spread ,

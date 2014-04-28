@@ -200,7 +200,7 @@ public class SubmarineAppearance extends AppearanceComponent {
     }
 
     public Vector3 getPropellerOffset() {
-        return new Vector3(length + length * tailRelLength, 0, 0);
+        return new Vector3(length + length * tailRelLength * 0.7f, 0, 0);
     }
 
     public Vector3 getHatchOffset() {

@@ -32,7 +32,7 @@ public final class EntityFactory {
         SubmarineAppearance appearance = new SubmarineAppearance(MathUtils.mixAndClamp(sizeFactor, 5f, 100f),
                                                                  MathUtils.mixAndClamp(sizeFactor, 3f, 16f));
         PhysicalComponent physical = new PhysicalComponent(10000f, random.nextFloat() * 200f + 900f, 0.1f);
-        BubblingComponent bubbling = new BubblingComponent(10, 30, 0.3f, appearance.width, 10, true, true, true);
+        BubblingComponent bubbling = new BubblingComponent(7, 30, 0.3f, appearance.width*0.5f, 15, true, true, true);
         bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
         SubmarineComponent submarine = new SubmarineComponent();
         ShipComponent ship = new ShipComponent();
