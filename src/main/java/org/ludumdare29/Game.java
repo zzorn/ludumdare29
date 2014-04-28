@@ -6,10 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import org.entityflow.persistence.NoPersistence;
 import org.entityflow.world.ConcurrentWorld;
 import org.flowutils.time.RealTime;
-import org.ludumdare29.processors.BubbleProcessor;
-import org.ludumdare29.processors.BubblingProcessor;
-import org.ludumdare29.processors.PhysicsProcessor;
-import org.ludumdare29.processors.RenderingProcessor;
+import org.ludumdare29.processors.*;
 
 import java.util.Random;
 
@@ -28,6 +25,7 @@ public class Game extends ApplicationAdapter {
     private RenderingProcessor renderingProcessor;
     private Vector3 tempPos;
     private EntityFactory entityFactory;
+    private ShipProcessor shipProcessor;
 
     public static void main(String[] args) {
         Game game = new Game();
@@ -48,6 +46,8 @@ public class Game extends ApplicationAdapter {
         bubbleProcessor = world.addProcessor(new BubbleProcessor(sea));
         physicsProcessor = world.addProcessor(new PhysicsProcessor(sea));
         renderingProcessor = world.addProcessor(new RenderingProcessor(new OceanShader(sea)));
+        shipProcessor = world.addProcessor(new ShipProcessor());
+        world.addProcessor(new SubmarineProcessor(sea));
 
         // Create 3D application
         new LwjglApplication(this, NAME, 1000, 800);

@@ -5,10 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import org.entityflow.entity.Entity;
 import org.entityflow.world.World;
 import org.flowutils.MathUtils;
-import org.ludumdare29.components.BubbleComponent;
-import org.ludumdare29.components.BubblingComponent;
-import org.ludumdare29.components.LocationComponent;
-import org.ludumdare29.components.PhysicalComponent;
+import org.ludumdare29.components.*;
 import org.ludumdare29.components.appearance.BubbleAppearance;
 import org.ludumdare29.components.appearance.SubmarineAppearance;
 import org.ludumdare29.processors.BubbleProcessor;
@@ -37,7 +34,9 @@ public final class EntityFactory {
         PhysicalComponent physical = new PhysicalComponent(10000f, random.nextFloat() * 200f + 900f, 0.1f);
         BubblingComponent bubbling = new BubblingComponent(10, 30, 0.3f, appearance.width, 10, true, true, true);
         bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
-        return world.createEntity(location, appearance, bubbling, physical);
+        SubmarineComponent submarine = new SubmarineComponent();
+        ShipComponent ship = new ShipComponent();
+        return world.createEntity(location, appearance, bubbling, physical, ship, submarine);
     }
 
     /**

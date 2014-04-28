@@ -147,6 +147,17 @@ public final class PhysicalComponent extends BaseComponent {
     }
 
     /**
+     * Updates the density of the object.
+     * Keeps the radius, recalculate the mass.
+     */
+    public void setDensityChangeMass(float density_kg_per_m3) {
+        this.density_kg_per_m3 = density_kg_per_m3;
+
+        // Recalculate mass
+        mass_kg = getVolume_m3() * density_kg_per_m3;
+    }
+
+    /**
      * Average radius of the object, in meters.
      * Calculated from mass and density.
      */

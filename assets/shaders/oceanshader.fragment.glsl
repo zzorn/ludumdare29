@@ -128,7 +128,7 @@ void main() {
     // Fog with distance
     //gl_FragColor.rgb = mix(depthColor.rgb, gl_FragColor.rgb, waterFogFactor);
     gl_FragColor.rgb = mix(WATER_FOG_COLOR.rgb, gl_FragColor.rgb, waterFogFactor);
-    gl_FragColor = mix(AIR_FOG_COLOR, gl_FragColor, airFogFactor);
+    //gl_FragColor = mix(AIR_FOG_COLOR, gl_FragColor, airFogFactor);
     //gl_FragColor.r = waterFogFactor;
 
 
