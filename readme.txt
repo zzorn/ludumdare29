@@ -69,4 +69,6 @@ There is no death screen - if you get destroyed, the camera and UI just stays fl
 
 There is no sound.
 
+Torpedoes tend to explode after having traveled too short a distance.
+
 
