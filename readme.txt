@@ -59,4 +59,4 @@ Recharge batteries with diesel engines (works only at surface):
 Turn on with C, off with X.
 (Not needed unless you want to play a _really_ long time).
 
-
+The red hand on each gauge indicates the player selected level, while the white hand indicates the actual level.
