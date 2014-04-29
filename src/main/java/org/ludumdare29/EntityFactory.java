@@ -64,8 +64,6 @@ public final class EntityFactory {
         BubblingComponent bubbling = new BubblingComponent(1, 10, 0.1f, 10, 10, true, true, true, false);
         bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
 
-        System.out.println("created");
-
         return world.createEntity(location, appearance, physical, exploding, rocket, bubbling);
     }
 

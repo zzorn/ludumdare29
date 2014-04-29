@@ -1,5 +1,5 @@
 
-java -jar ludumdare29_zzorn.jar
+java -jar ludumdare29_CrushingDepth_zzorn.jar
 
 
 

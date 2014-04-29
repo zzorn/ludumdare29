@@ -10,7 +10,7 @@ PROGRAM_DIR="$( cd "$( dirname "$0" )" && pwd )"
 cd $PROGRAM_DIR
 
 # Run the program
-java -jar ludumdare29_zzorn.jar
+java -jar ludumdare29_CrushingDepth_zzorn.jar
 
 # Return to previous dir
 cd $PREVIOUS_DIR

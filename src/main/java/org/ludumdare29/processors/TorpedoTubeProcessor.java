@@ -28,7 +28,6 @@ public class TorpedoTubeProcessor extends BaseEntityProcessor {
         tube.secondsUntilReloaded -= time.getLastStepDurationSeconds();
 
         if (tube.isLaunchRequested() && tube.isReadyToFire()) {
-            System.out.println("laucnh");
             entityFactory.createTorpedo(entity, location.position, location.direction, tube.torpedoSizeFactor, tube.torpedoSpeedFactor, colorAccented.accentColor);
             tube.secondsUntilReloaded = tube.reloadTime_s;
             tube.launchRequested = false;

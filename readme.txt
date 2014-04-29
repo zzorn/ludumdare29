@@ -3,9 +3,9 @@ Crushing Depth
 
 Ludumdare29 entry by zzorn
 
-This is a submarine dogfigth simulator.  Your objective is to destroy the enemy submarines before they destroy you.
+This is a submarine fight simulator.  Your objective is to destroy the enemy submarines before they destroy you.
 
-The actual gameplay is pretty unfinised, I ended up putting most time into creating the physics and simulation again.
+The actual gameplay is pretty unfinished, I ended up putting most time into creating the physics and simulation again.
 
 
 

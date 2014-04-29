@@ -110,7 +110,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>org.ludumdare29.RenderingSpike</mainClass>
+                            <mainClass>org.ludumdare29.Game</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
