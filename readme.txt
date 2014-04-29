@@ -67,4 +67,6 @@ Issues
 
 There is no death screen - if you get destroyed, the camera and UI just stays floating at the point where you died.
 
+There is no sound.
+
 
