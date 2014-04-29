@@ -100,7 +100,7 @@ public final class Controllable extends InputAdapter {
     /**
      * @return A name for this controllable object, for use in UI:s etc.
      */
-    public String getName() {
+    public String getLabel() {
         return name;
     }
 
@@ -252,6 +252,26 @@ public final class Controllable extends InputAdapter {
      */
     public float getCurrentPosMagnitude() {
         return Math.abs(currentPos);
+    }
+
+    public float getMinValue() {
+        return minValue;
+    }
+
+    public float getZeroValue() {
+        return zeroValue;
+    }
+
+    public float getMaxValue() {
+        return maxValue;
+    }
+
+    public float getMinPos() {
+        return minPos;
+    }
+
+    public float getMaxPos() {
+        return maxPos;
     }
 
     public int getIncreaseKeyCode() {
@@ -426,5 +446,11 @@ public final class Controllable extends InputAdapter {
     }
 
 
+    public String getLabelForDecrease() {
+        return Input.Keys.toString(getDecreaseKeyCode());
+    }
 
+    public String getLabelForIncrease() {
+        return Input.Keys.toString(getIncreaseKeyCode());
+    }
 }

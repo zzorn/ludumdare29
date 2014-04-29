@@ -6,7 +6,7 @@ import org.entityflow.component.BaseComponent;
 import org.entityflow.entity.Entity;
 
 /**
- * Something that tracks another entitys position
+ * Something that tracks and aligns with another entitys position
  */
 public class TrackingComponent extends BaseComponent {
 

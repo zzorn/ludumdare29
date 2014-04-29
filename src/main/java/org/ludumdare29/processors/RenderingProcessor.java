@@ -10,16 +10,14 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
 import org.entityflow.entity.Entity;
 import org.entityflow.system.BaseEntityProcessor;
-import org.flowutils.MathUtils;
 import org.flowutils.time.Time;
 import org.ludumdare29.shader.SkyAttribute;
 import org.ludumdare29.components.LocationComponent;
 import org.ludumdare29.components.appearance.AppearanceComponent;
+
+import java.util.List;
 
 /**
  *
@@ -104,24 +102,29 @@ public class RenderingProcessor extends BaseEntityProcessor {
         final AppearanceComponent appearance = entity.getComponent(AppearanceComponent.class);
 
         if (appearance != null && location != null && appearance.isVisible()) {
-            final ModelInstance modelInstance = appearance.getAppearance();
+            // Do any appearance updates
+            appearance.update(time);
 
-            // Apply direction
-            modelInstance.transform.idt();
-            modelInstance.transform.rotate(location.direction);
+            // Render all parts of the appearance
+            final List<ModelInstance> modelInstances = appearance.getModelInstances();
+            for (ModelInstance modelInstance : modelInstances) {
+                // Apply direction
+                modelInstance.transform.idt();
+                modelInstance.transform.rotate(location.direction);
 
-            // Update position
-            final float x = location.position.x + appearance.getOffset().x;
-            final float y = location.position.y + appearance.getOffset().y;
-            final float z = location.position.z + appearance.getOffset().z;
-            modelInstance.transform.setTranslation(x, y, z);
+                // Update position
+                final float x = location.position.x + appearance.getOffset().x;
+                final float y = location.position.y + appearance.getOffset().y;
+                final float z = location.position.z + appearance.getOffset().z;
+                modelInstance.transform.setTranslation(x, y, z);
 
-            // Apply scaling
-            modelInstance.transform.scl(appearance.getScale());
+                // Apply scaling
+                modelInstance.transform.scl(appearance.getScale());
 
-            // Render
-            modelBatch.render(modelInstance, shader);
+                // Render
+                modelBatch.render(modelInstance, shader);
 //            modelBatch.render(modelInstance, environment);
+            }
         }
     }
 

@@ -23,6 +23,7 @@ import org.ludumdare29.components.appearance.AppearanceComponent;
 public class CameraProcessor extends BaseEntityProcessor {
 
     private final RenderingProcessor renderingProcessor;
+    private final UiProcessor uiProcessor;
 
     private Entity currentCameraEntity = null;
 
@@ -43,15 +44,23 @@ public class CameraProcessor extends BaseEntityProcessor {
         }
     };
 
-    public CameraProcessor(RenderingProcessor renderingProcessor, InputMultiplexer inputHandler) {
+    public CameraProcessor(RenderingProcessor renderingProcessor,
+                           InputMultiplexer inputHandler,
+                           UiProcessor uiProcessor) {
         super(CameraProcessor.class, LocationComponent.class, CameraComponent.class);
         this.renderingProcessor = renderingProcessor;
+        this.uiProcessor = uiProcessor;
 
         inputHandler.addProcessor(cameraInputHandler);
     }
 
     @Override protected void handleAddedEntity(Entity entity) {
-        if (currentCameraEntity == null) setCurrentCameraEntity(entity);
+        final CameraComponent newCameraComponent = entity.getComponent(CameraComponent.class);
+        if (currentCameraEntity == null ||
+            currentCameraEntity.getComponent(CameraComponent.class).priority < newCameraComponent.priority) {
+            setCurrentCameraEntity(entity);
+        }
+
     }
 
     @Override protected void handleRemovedEntity(Entity entity) {
@@ -85,6 +94,12 @@ public class CameraProcessor extends BaseEntityProcessor {
             setVisibilityOfAssociatedEntityToHide(currentCameraEntity, true);
             currentCameraEntity = entity;
             setVisibilityOfAssociatedEntityToHide(currentCameraEntity, false);
+
+            // Update UI visibility
+            if (currentCameraEntity != null) {
+                final CameraComponent camera = currentCameraEntity.getComponent(CameraComponent.class);
+                uiProcessor.setUiVisible(camera.showUi);
+            }
         }
     }
 
@@ -93,7 +108,9 @@ public class CameraProcessor extends BaseEntityProcessor {
             final CameraComponent camera = cameraEntity.getComponent(CameraComponent.class);
             if (camera.entityToHideWhenCameraActive != null) {
                 final AppearanceComponent appearance = camera.entityToHideWhenCameraActive.getComponent(AppearanceComponent.class);
-                appearance.setVisible(visible);
+                if (appearance != null) {
+                    appearance.setVisible(visible);
+                }
             }
         }
     }

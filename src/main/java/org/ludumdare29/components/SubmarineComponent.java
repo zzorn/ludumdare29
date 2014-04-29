@@ -10,14 +10,14 @@ import org.ludumdare29.parts.Tank;
  */
 public class SubmarineComponent extends SystemComponent {
 
-    public final Controllable electricalMotorThrust_N = controllable("Electrical Motor", -300000, 0, 700000, 5, 6,
-                                                                     Input.Keys.W, Input.Keys.S, 1f, false);
-    public final Controllable diveFins_turns_per_sec = controllable("Dive Fins", -0.04f, 0, 0.04f, 1, 8,
-                                                                    Input.Keys.R, Input.Keys.F, 0.5f, true);
-    public final Controllable altitudeTankPumpSpeed_m3_per_s = controllable("Ballast Tank", -0.2f, 0, 0.2f, 4, 6,
-                                                                            Input.Keys.PAGE_DOWN, Input.Keys.PAGE_UP, 1f, false);
-    public final Controllable batteryChargeDelta_Wh_per_s = controllable("Charge Batteries", 0, 10000, 6, 1,
-                                                                         Input.Keys.X, Input.Keys.C, 1f, false);
+    public final Controllable electricalMotorThrust_N = controllable("Motor", -300000, 0, 700000, 5, 6,
+                                                                     Input.Keys.S, Input.Keys.W, 0.2f, false);
+    public final Controllable diveFins_turns_per_sec = controllable(" Dive ", -0.04f, 0, 0.04f, 1, 8,
+                                                                    Input.Keys.F, Input.Keys.R, 0.1f, true);
+    public final Controllable altitudeTankPumpSpeed_m3_per_s = controllable("Ballast", 0.2f, 0, -0.2f, 4, 3,
+                                                                            Input.Keys.UP, Input.Keys.DOWN, 0.2f, false);
+    public final Controllable batteryChargeDelta_Wh_per_s = controllable("Charge Bat.", 0,                     10000, 6, 1,
+                                                                         Input.Keys.C, Input.Keys.X, 1f, false);
     public final Tank altitudeTank_m3 = tank("Altitude Tank", 3, 0.5f);
     public final Tank batteries_Wh = tank("Batteries", 10000, 0.5f);
 
@@ -28,6 +28,8 @@ public class SubmarineComponent extends SystemComponent {
 
     public float minDensity_kg_per_m3 = 800;
     public float maxDensity_kg_per_m3 = 1300;
+
+
 
     /**
      * Time in which the submarine re-aligns itself to be horizontal

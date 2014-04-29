@@ -2,13 +2,12 @@ package org.ludumdare29;
 
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import org.entityflow.entity.Entity;
 import org.entityflow.world.World;
 import org.ludumdare29.components.*;
-import org.ludumdare29.components.appearance.AppearanceComponent;
-import org.ludumdare29.components.appearance.BubbleAppearance;
-import org.ludumdare29.components.appearance.SubmarineAppearance;
+import org.ludumdare29.components.appearance.*;
 import org.ludumdare29.processors.BubbleProcessor;
 
 import java.util.Random;
@@ -29,16 +28,61 @@ public final class EntityFactory {
         this.sea = sea;
     }
 
+    public Entity createTorpedo(Entity sourceEntity, Vector3 pos, Quaternion direction, float sizeFactor, float speedFactor, Color accentColor) {
+        // Location
+        final LocationComponent location = new LocationComponent(pos, direction);
+
+        // Appearance
+        float length = mixAndClamp(sizeFactor + speedFactor / 2, 1, 15);
+        float width = mixAndClamp(sizeFactor - speedFactor / 2, 2f, 8f);
+        final Color baseColor = createBaseColor();
+        final TorpedoAppearance appearance = new TorpedoAppearance(length, width, baseColor, accentColor);
+
+        // Physical
+        final float mass_kg = mix(sizeFactor, 100, 1000);
+        final float density_kg_per_m3 = 900f;
+        final float dragCoefficient = mix(speedFactor, 0.3f, 0.05f);
+        final PhysicalComponent physical = new PhysicalComponent(mass_kg, density_kg_per_m3, dragCoefficient);
+        if (sourceEntity != null) {
+            final PhysicalComponent sourcePhysical = sourceEntity.getComponent(PhysicalComponent.class);
+            physical.velocity.set(sourcePhysical.velocity);
+        }
+
+        // Explosive
+        float lifetme = 35;
+        float armTime= 3;
+        float damage = mix(sizeFactor, 200, 1000);
+        float damageRadius_m = mix(sizeFactor, 10, 50);
+        float proximity_m = damageRadius_m * 0.5f;
+        final ExplodingComponent exploding = new ExplodingComponent(sourceEntity,  lifetme, armTime, proximity_m, damage, damageRadius_m);
+
+        // Rocket engine
+        float thrust_N = mix(sizeFactor + speedFactor, 10000, 100000);
+        final RocketComponent rocket = new RocketComponent(thrust_N);
+
+        // Bubbles
+        BubblingComponent bubbling = new BubblingComponent(1, 10, 0.1f, 10, 10, true, true, true, false);
+        bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
+
+        System.out.println("created");
+
+        return world.createEntity(location, appearance, physical, exploding, rocket, bubbling);
+    }
+
+    public Entity createEnemySubmarine(Vector3 pos, float sizeFactor, float sleekness) {
+        Color accentColor = new Color(0.95f, 0.05f * random.nextFloat(), 0.2f, 1);
+
+        final Entity submarine = createSubmarine(pos, sizeFactor, sleekness, accentColor);
+        submarine.addComponent(new EnemyAi());
+        return submarine;
+    }
+
+
     public Entity createSubmarine(Vector3 pos, float sizeFactor, float sleekness, Color accentColor) {
         LocationComponent location = new LocationComponent(pos);
         location.direction.setFromAxisRad(0, 1, 0, random.nextFloat() * TauFloat);
 
-        final Color baseColor = new Color(0.14f, 0.12f, 0.16f, 1f);
-        baseColor.r *= 1f + (float) random.nextGaussian() * 0.03f;
-        baseColor.g *= 1f + (float) random.nextGaussian() * 0.03f;
-        baseColor.b *= 1f + (float) random.nextGaussian() * 0.03f;
-        baseColor.mul(random.nextFloat() * 0.2f + 0.9f);
-        baseColor.clamp();
+        final Color baseColor = createBaseColor();
         SubmarineAppearance appearance = new SubmarineAppearance(mixAndClamp(sizeFactor, 5f, 100f),
                                                                  mixAndClamp(sizeFactor, 3f, 16f) * mixAndClamp(sleekness, 1.5f, 0.5f),
                                                                  baseColor,
@@ -55,35 +99,85 @@ public final class EntityFactory {
 
         ShipComponent ship = new ShipComponent();
 
-        return world.createEntity(location, appearance, bubbling, physical, ship, submarine);
+        DamageableComponent damageable = new DamageableComponent(1000 + sizeFactor * 2000f - sleekness * 800,
+                                                                 1f,
+                                                                 sizeFactor);
+
+        // Torpedo tube
+        final float reloadTime_s = mixAndClamp(sizeFactor, 5, 10);
+        final float torpedoSizeFactor = mixAndClamp(sizeFactor, 0.1f, 1f);
+        final float torpedoSpeedFactor = mixAndClamp( sizeFactor, 0.4f, 0.2f) + mixAndClamp(sleekness, 0.1f, 0.6f);
+        final TorpedoTubeComponent torpedoTube = new TorpedoTubeComponent(reloadTime_s, torpedoSizeFactor, torpedoSpeedFactor);
+
+        final ColorAccented colorAccented = new ColorAccented(accentColor);
+        return world.createEntity(location, appearance, bubbling, physical, ship, submarine, damageable, torpedoTube, colorAccented);
+    }
+
+    private Color createBaseColor() {
+        final Color baseColor = new Color(0.14f, 0.12f, 0.16f, 1f);
+        baseColor.r *= 1f + (float) random.nextGaussian() * 0.03f;
+        baseColor.g *= 1f + (float) random.nextGaussian() * 0.03f;
+        baseColor.b *= 1f + (float) random.nextGaussian() * 0.03f;
+        baseColor.mul(random.nextFloat() * 0.2f + 0.9f);
+        baseColor.clamp();
+        return baseColor;
     }
 
     public Entity createPlayerSubmarine(Vector3 pos, float sizeFactor, float sleekness, InputMultiplexer inputMultiplexer) {
         final Entity playerSubmarine = createSubmarine(pos, sizeFactor, sleekness, new Color(0.3f, 0.3f, 0.95f, 1f));
 
-        inputMultiplexer.addProcessor(playerSubmarine.getComponent(ShipComponent.class).getInputHandler());
-        inputMultiplexer.addProcessor(playerSubmarine.getComponent(SubmarineComponent.class).getInputHandler());
+        final ShipComponent ship = playerSubmarine.getComponent(ShipComponent.class);
+        final SubmarineComponent submarine = playerSubmarine.getComponent(SubmarineComponent.class);
+        final TorpedoTubeComponent torpedoTube = playerSubmarine.getComponent(TorpedoTubeComponent.class);
+
+        inputMultiplexer.addProcessor(ship.getInputHandler());
+        inputMultiplexer.addProcessor(submarine.getInputHandler());
+        inputMultiplexer.addProcessor(torpedoTube.getInputHandler());
 
         // Add a first person view camera
         world.createEntity(new LocationComponent(pos),
-                           new CameraComponent(playerSubmarine, 80, false),
+                           new CameraComponent(playerSubmarine, 80, false, true, 10),
                            new TrackingComponent(playerSubmarine, new Vector3(0, 6, 0)));
 
         // Add bridge view
         final Vector3 hatchOffset = ((SubmarineAppearance) playerSubmarine.getComponent(AppearanceComponent.class)).getHatchOffset();
         world.createEntity(new LocationComponent(pos),
-                           new CameraComponent(null, 70, true),
+                           new CameraComponent(null, 70, true, true),
                            new TrackingComponent(playerSubmarine, hatchOffset.cpy().add(-1, 0, 0)));
 
         // Add rear view camera
         world.createEntity(new LocationComponent(pos),
-                           new CameraComponent(null, 90, true),
+                           new CameraComponent(null, 90, true, false),
                            new TrackingComponent(playerSubmarine, new Vector3(80, 30, 0)));
 
         // Add a bubble cloud around the player to help visually orient them
         world.createEntity(new LocationComponent(pos),
                            new BubblingComponent(0.5f, 20, 0.05f, 200, 6, true, false, true, false),
                            new TrackingComponent(playerSubmarine, new Vector3(0, -20, 0)));
+
+
+        // Setup UI
+        float leftX = 0.1f;
+        float rightX = 1f - leftX;
+        float yStart = 0.2f;
+        float ySpacing = 0.2f;
+        float leftSupport =  90;
+        float rightSupport = -90;
+        world.createEntity(new UiComponent(leftX, yStart + 0 * ySpacing),
+                           new GaugeAppearance(ship.dieselEngineForwardThrust_N, leftSupport, false));
+        world.createEntity(new UiComponent(leftX, yStart + 1 * ySpacing),
+                           new GaugeAppearance(submarine.electricalMotorThrust_N, leftSupport, false));
+
+        world.createEntity(new UiComponent(leftX, yStart + 3 * ySpacing),
+                           new GaugeAppearance(submarine.batteryChargeDelta_Wh_per_s, leftSupport, true));
+
+        world.createEntity(new UiComponent(rightX, yStart + 0 * ySpacing),
+                           new GaugeAppearance(ship.rudder_turns_per_second, rightSupport, false));
+        world.createEntity(new UiComponent(rightX, yStart + 1 * ySpacing),
+                           new GaugeAppearance(submarine.diveFins_turns_per_sec, rightSupport, true));
+        world.createEntity(new UiComponent(rightX, yStart + 2 * ySpacing),
+                           new GaugeAppearance(submarine.altitudeTankPumpSpeed_m3_per_s, rightSupport, false));
+
 
         return playerSubmarine;
     }
@@ -176,4 +270,10 @@ public final class EntityFactory {
         return 0.5f * scale + randomNormalDistributed(scale);
     }
 
+    public void createExplosion(Vector3 position, float explosiveDamage, float damageRadius_m) {
+        float bubbleCount = mapAndClamp(explosiveDamage, 0, 1000, 3, 200);
+        float bubbleSize = mapAndClamp(explosiveDamage, 0, 1000, 0.1f, 10f);
+        float bubbleLifetime = mapAndClamp(explosiveDamage, 0, 1000, 4f, 16f);
+        createVaryingBubbleCloud(position, (int) bubbleCount, bubbleSize, damageRadius_m, bubbleLifetime);
+    }
 }

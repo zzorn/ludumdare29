@@ -6,25 +6,28 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import org.entityflow.component.BaseComponent;
 import org.entityflow.entity.Entity;
+import org.flowutils.time.Time;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A 3D appearance for an entity.
  */
 public abstract class AppearanceComponent extends BaseComponent {
 
-    private ModelInstance appearance;
+    private final List<ModelInstance> appearances = new ArrayList<>(3);
     private float scale = 1;
     private final Vector3 offset = new Vector3();
 
     private boolean visible = true;
+    private boolean appearancesCreated = false;
 
 
     protected AppearanceComponent() {
         super(AppearanceComponent.class);
-    }
-
-    public void setAppearance(ModelInstance appearance) {
-        this.appearance = appearance;
     }
 
     public float getScale() {
@@ -55,22 +58,36 @@ public abstract class AppearanceComponent extends BaseComponent {
         this.visible = visible;
     }
 
-    public final ModelInstance getAppearance() {
-        if (appearance == null) {
-            appearance = createAppearance();
+    public final List<ModelInstance> getModelInstances() {
+        if (!appearancesCreated) {
+            // Single
+            final ModelInstance singleAppearance = createAppearance();
+            if (singleAppearance != null) appearances.add(singleAppearance);
 
-            configureInstance(appearance);
+            // Multiple
+            appearances.addAll(createAppearances());
+
+            // Configure them
+            for (ModelInstance appearance : appearances) {
+                configureInstance(appearance);
+            }
+
+            appearancesCreated = true;
         }
 
-        return appearance;
+        return appearances;
     }
 
-    protected abstract ModelInstance createAppearance();
+    public void update(Time time) {
+    }
+
+    protected ModelInstance createAppearance() {return null; }
+
+    protected List<ModelInstance> createAppearances() {return Collections.EMPTY_LIST; }
 
     protected void configureInstance(ModelInstance appearance) {
     }
 
     @Override protected void handleRemoved(Entity entity) {
-        appearance.transform.scale(10, 1, 1);
     }
 }

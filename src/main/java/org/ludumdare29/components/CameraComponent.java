@@ -12,6 +12,8 @@ public class CameraComponent extends BaseComponent {
     public Entity entityToHideWhenCameraActive = null;
     public float fieldOfView_degrees = 67;
     public boolean keepUpright = true;
+    public boolean showUi = true;
+    public float priority = 1;
 
     public CameraComponent() {
     }
@@ -25,9 +27,21 @@ public class CameraComponent extends BaseComponent {
         this.fieldOfView_degrees = fieldOfView_degrees;
     }
 
-    public CameraComponent(Entity entityToHideWhenCameraActive, float fieldOfView_degrees, boolean keepUpright) {
+    public CameraComponent(Entity entityToHideWhenCameraActive, float fieldOfView_degrees, boolean keepUpright, boolean showUi) {
         this.entityToHideWhenCameraActive = entityToHideWhenCameraActive;
         this.fieldOfView_degrees = fieldOfView_degrees;
         this.keepUpright = keepUpright;
+        this.showUi = showUi;
+    }
+
+    public CameraComponent(Entity entityToHideWhenCameraActive,
+                           float fieldOfView_degrees,
+                           boolean keepUpright,
+                           boolean showUi, float priority) {
+        this.entityToHideWhenCameraActive = entityToHideWhenCameraActive;
+        this.fieldOfView_degrees = fieldOfView_degrees;
+        this.keepUpright = keepUpright;
+        this.showUi = showUi;
+        this.priority = priority;
     }
 }

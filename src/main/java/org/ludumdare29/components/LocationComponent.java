@@ -28,6 +28,11 @@ public class LocationComponent extends BaseComponent {
         this.direction.set(direction);
     }
 
+    public LocationComponent(Vector3 pos, Quaternion direction) {
+        position.set(pos);
+        this.direction.set(direction);
+    }
+
 
 
 }

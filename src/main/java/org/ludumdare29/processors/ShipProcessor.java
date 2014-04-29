@@ -44,7 +44,7 @@ public class ShipProcessor extends BaseEntityProcessor {
 
         // Apply thrust
         final float thrust_N = ship.dieselEngineForwardThrust_N.getCurrentValue();
-        temp.set(-1, 0, 0);
+        temp.set(1, 0, 0);
         location.direction.transform(temp);
         physical.thrust.mulAdd(temp, thrust_N);
 
@@ -53,5 +53,8 @@ public class ShipProcessor extends BaseEntityProcessor {
         tempQ.setFromAxisRad(0, 1, 0, MathUtils.TauFloat * ship.rudder_turns_per_second.getCurrentValue() * secondsSinceLastStep);
         tempQ.mul(location.direction);
         location.direction.set(tempQ);
+
+        location.direction.nor();
+
     }
 }

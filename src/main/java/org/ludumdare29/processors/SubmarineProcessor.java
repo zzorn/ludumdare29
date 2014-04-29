@@ -105,7 +105,7 @@ public class SubmarineProcessor extends BaseEntityProcessor {
 
         // Apply thrust
         final float thrust_N = submarine.electricalMotorThrust_N.getCurrentValue();
-        temp.set(-1, 0, 0);
+        temp.set(1, 0, 0);
         location.direction.transform(temp);
         physical.thrust.mulAdd(temp, thrust_N);
 

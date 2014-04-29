@@ -7,7 +7,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import org.entityflow.entity.Entity;
-import org.entityflow.persistence.NoPersistence;
 import org.entityflow.world.ConcurrentWorld;
 import org.flowutils.time.RealTime;
 import org.ludumdare29.processors.*;
@@ -36,6 +35,13 @@ public class Game extends ApplicationAdapter {
     public static void main(String[] args) {
         Game game = new Game();
         game.start();
+
+        /* Ascii table for font
+        for (int i = 32; i < 256; i++) {
+            if ((i % 16) == 0) System.out.println();
+            System.out.print((char) (i));
+        }
+        */
     }
 
 
@@ -49,16 +55,24 @@ public class Game extends ApplicationAdapter {
 
         // Add processors
         world.addProcessor(new TrackingProcessor());
+        world.addProcessor(new EnemyProcessor(entityFactory));
         world.addProcessor(new BubblingProcessor(entityFactory));
+        world.addProcessor(new TorpedoTubeProcessor(entityFactory));
         bubbleProcessor = world.addProcessor(new BubbleProcessor(sea));
         physicsProcessor = world.addProcessor(new PhysicsProcessor(sea));
-        renderingProcessor = world.addProcessor(new RenderingProcessor(new OceanShader(sea)));
         shipProcessor = world.addProcessor(new ShipProcessor());
         world.addProcessor(new SubmarineProcessor(sea));
-        world.addProcessor(new CameraProcessor(renderingProcessor, inputHandler));
+        world.addProcessor(new RocketProcessor());
+        world.addProcessor(new ExplodingProcessor(entityFactory));
+        world.addProcessor(new DamageProcessor(entityFactory));
+        renderingProcessor = new RenderingProcessor(new OceanShader(sea));
+        final UiProcessor uiProcessor = new UiProcessor();
+        world.addProcessor(new CameraProcessor(renderingProcessor, inputHandler, uiProcessor));
+        world.addProcessor(renderingProcessor);
+        world.addProcessor(uiProcessor);
 
         // Create 3D application
-        new LwjglApplication(this, NAME, 1000, 800);
+        new LwjglApplication(this, NAME, 1024, 768);
     }
 
 
@@ -72,7 +86,7 @@ public class Game extends ApplicationAdapter {
         tempPos = new Vector3();
 
         // Create player submarine
-        final Entity player = entityFactory.createPlayerSubmarine(tempPos.set(0, 0, 0), 0.5f, 0.5f, inputHandler);
+        final Entity player = entityFactory.createPlayerSubmarine(tempPos.set(0, 0, 0), 0.3f, 0.7f, inputHandler);
 
         // Create some bubbles
         Random random = new Random();
@@ -89,8 +103,8 @@ public class Game extends ApplicationAdapter {
         }
 
         // Create some submarines
-        spread = 100;
-        for (int i = 0; i < 15; i++) {
+        spread = 300;
+        for (int i = 0; i < 10; i++) {
 
             tempPos.set((float) random.nextGaussian() * spread,
                         (float) random.nextGaussian() * spread ,
@@ -98,10 +112,9 @@ public class Game extends ApplicationAdapter {
 
             //tempPos.set((i% 10) * 10 - 100, -i * 2 + 100, (i / 10) * 10 -100  );
 
-            entityFactory.createSubmarine(tempPos,
+            entityFactory.createEnemySubmarine(tempPos,
                                           random.nextFloat() * random.nextFloat(),
-                                          random.nextFloat() * random.nextFloat(),
-                                          new Color(0.95f, 0.05f, 0.2f, 1));
+                                          random.nextFloat() * random.nextFloat());
         }
     }
 
