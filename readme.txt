@@ -60,3 +60,11 @@ Turn on with C, off with X.
 (Not needed unless you want to play a _really_ long time).
 
 The red hand on each gauge indicates the player selected level, while the white hand indicates the actual level.
+
+
+Issues
+======
+
+There is no death screen - if you get destroyed, the camera and UI just stays floating at the point where you died.
+
+
