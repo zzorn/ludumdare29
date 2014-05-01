@@ -4,9 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.Attribute;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.Shader;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -28,9 +31,10 @@ public class OceanShader extends BaseShader {
     private int sunLightColorUniform;
     private int cameraPositionUniform;
     private int seaLevelUniform;
-    private int isSkyUniform;
+    private int specialTypeUniform;
     private int u_worldTrans;
-    private int u_color;
+    private int objectColorUniform;
+    private int opacityUniform;
 
     private Matrix3 normalMatrix = new Matrix3();
 
@@ -56,8 +60,9 @@ public class OceanShader extends BaseShader {
         sunLightColorUniform = program.getUniformLocation("SunLightColor");
         cameraPositionUniform = program.getUniformLocation("CameraPosition");
         seaLevelUniform = program.getUniformLocation("SeaLevel");
-        isSkyUniform = program.getUniformLocation("IsSky");
-        u_color = program.getUniformLocation("u_color");
+        specialTypeUniform = program.getUniformLocation("SpecialType");
+        objectColorUniform = program.getUniformLocation("ObjectColor");
+        opacityUniform = program.getUniformLocation("Opacity");
     }
 
     @Override public void dispose() {
@@ -85,8 +90,9 @@ public class OceanShader extends BaseShader {
     public void render (Renderable renderable) {
 
         // Sky data
-        boolean isSky = renderable.material.get(SkyAttribute.SKY_ATTRIBUTE) != null;
-        program.setUniformi(isSkyUniform, isSky ? 1 : 0);
+        final SpecialAttribute specialAttribute = (SpecialAttribute) renderable.material.get(SpecialAttribute.ATTRIBUTE);
+        int specialType = specialAttribute == null ? 0 : specialAttribute.value;
+        program.setUniformi(specialTypeUniform, specialType);
 
         program.setUniformMatrix(u_worldTrans, renderable.worldTransform);
 
@@ -101,13 +107,32 @@ public class OceanShader extends BaseShader {
 
         program.setUniformMatrix(normalMatrixUniform, normalMatrix);
 
-        Color diffuseColor = ((ColorAttribute)renderable.material.get(ColorAttribute.Diffuse)).color;
-        program.setUniformf(u_color, diffuseColor);
+        final Color diffuseColor = getColorAttribute(renderable, ColorAttribute.Diffuse, Color.WHITE);
+        program.setUniformf(objectColorUniform, diffuseColor);
+
+        // Setup blending
+        final BlendingAttribute blendingAttribute = (BlendingAttribute) renderable.material.get(BlendingAttribute.Type);
+        if (blendingAttribute != null) {
+            context.setBlending(true, blendingAttribute.sourceFunction, blendingAttribute.destFunction);
+            if (has(opacityUniform)) set(opacityUniform, blendingAttribute.opacity);
+        } else {
+            context.setBlending(false,  GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        }
 
         renderable.mesh.render(program,
                                renderable.primitiveType,
                                renderable.meshPartOffset,
                                renderable.meshPartSize);
+    }
+
+    private Color getColorAttribute(Renderable renderable, final long type, final Color defaultColor) {
+        final ColorAttribute colorAttribute = (ColorAttribute) renderable.material.get(type);
+        if (colorAttribute != null) {
+            return colorAttribute.color;
+        }
+        else {
+            return defaultColor;
+        }
     }
 
     @Override

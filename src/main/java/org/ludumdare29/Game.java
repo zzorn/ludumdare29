@@ -4,7 +4,6 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import org.entityflow.entity.Entity;
 import org.entityflow.world.ConcurrentWorld;
@@ -65,7 +64,7 @@ public class Game extends ApplicationAdapter {
         world.addProcessor(new RocketProcessor());
         world.addProcessor(new ExplodingProcessor(entityFactory));
         world.addProcessor(new DamageProcessor(entityFactory));
-        renderingProcessor = new RenderingProcessor(new OceanShader(sea));
+        renderingProcessor = new RenderingProcessor(new OceanShader(sea), sea);
         final UiProcessor uiProcessor = new UiProcessor();
         world.addProcessor(new CameraProcessor(renderingProcessor, inputHandler, uiProcessor));
         world.addProcessor(renderingProcessor);

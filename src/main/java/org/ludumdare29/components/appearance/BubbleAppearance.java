@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import org.ludumdare29.shader.SpecialAttribute;
 
 /**
  * Spherical appearance
@@ -30,7 +31,8 @@ public class BubbleAppearance extends ModelAppearance {
         ModelBuilder modelBuilder = new ModelBuilder();
         return modelBuilder.createSphere(1, 1, 1,
                                          12, 12,
-                                         new Material(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)),
+                                         new Material(SpecialAttribute.airBubble(),
+                                                      new BlendingAttribute(true, 0.5f)),
                                          VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
     }
 

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
@@ -13,7 +14,8 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import org.entityflow.entity.Entity;
 import org.entityflow.system.BaseEntityProcessor;
 import org.flowutils.time.Time;
-import org.ludumdare29.shader.SkyAttribute;
+import org.ludumdare29.Sea;
+import org.ludumdare29.shader.SpecialAttribute;
 import org.ludumdare29.components.LocationComponent;
 import org.ludumdare29.components.appearance.AppearanceComponent;
 
@@ -24,6 +26,9 @@ import java.util.List;
  */
 public class RenderingProcessor extends BaseEntityProcessor {
 
+    private static final int ATTRIBUTES = VertexAttributes.Usage.Position |
+    VertexAttributes.Usage.Normal |
+    VertexAttributes.Usage.TextureCoordinates;
     public PerspectiveCamera camera;
     public ModelBatch modelBatch;
     public Environment environment;
@@ -32,14 +37,18 @@ public class RenderingProcessor extends BaseEntityProcessor {
     private final Shader shader;
 
     private ModelInstance skySphere;
+    private final Sea sea;
 
     private final Renderable tempRenderable = new Renderable();
 
     private Entity cameraHostEntity;
+    private ModelInstance waterSurface;
+    private ModelInstance waterUnderside;
 
-    public RenderingProcessor(Shader shader) {
+    public RenderingProcessor(Shader shader, Sea sea) {
         super(RenderingProcessor.class, AppearanceComponent.class, LocationComponent.class);
         this.shader = shader;
+        this.sea = sea;
     }
 
     @Override protected void onInit() {
@@ -70,16 +79,42 @@ public class RenderingProcessor extends BaseEntityProcessor {
                                                           -skySize,
                                                           128,
                                                           128,
-                                                          new Material( SkyAttribute.sky(), ColorAttribute.createDiffuse(Color.GRAY)),
-                                                          VertexAttributes.Usage.Position |
-                                                          VertexAttributes.Usage.Normal |
-                                                          VertexAttributes.Usage.TextureCoordinates);
+                                                          new Material( SpecialAttribute.sky(), ColorAttribute.createDiffuse(Color.GRAY)),
+                                                          ATTRIBUTES);
         skySphere = new ModelInstance(skySphereModel);
+
+        // Create water surface
+        float waterSize = 1000;
+        waterSurface = new ModelInstance(createSurface(modelBuilder, waterSize, true, SpecialAttribute.waterSurface()));
+        waterUnderside = new ModelInstance(createSurface(modelBuilder,
+                                                         waterSize,
+                                                         false,
+                                                         SpecialAttribute.waterUnderside()));
 
 
         // Setup camera control
         //camController = new CameraInputController(camera);
         //Gdx.input.setInputProcessor(camController);
+    }
+
+    private Model createSurface(ModelBuilder modelBuilder,
+                                float waterSize,
+                                boolean flip,
+                                final SpecialAttribute specialAttribute) {
+        float f = 1;//flip ? -1 : 1;
+        final Model rect = modelBuilder.createRect(-waterSize*f, 0, -waterSize*f,
+                                                   waterSize*f, 0, -waterSize*f,
+                                                   waterSize*f, 0, waterSize*f,
+                                                   -waterSize*f, 0, waterSize*f,
+                                                   0, 1, 0,
+                                                   new Material(specialAttribute,
+                                                                new BlendingAttribute(true, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, 0.5f)),
+                                                   ATTRIBUTES);
+        if (flip) {
+            rect.nodes.get(0).rotation.setFromAxis(1, 0, 0, 180);
+            rect.calculateTransforms();
+        }
+        return rect;
     }
 
     @Override protected void preProcess(Time time) {
@@ -90,10 +125,18 @@ public class RenderingProcessor extends BaseEntityProcessor {
         // Render scene
         modelBatch.begin(camera);
 
+        // Move water to camera x,z and water surface y
+        final float seaLevel = sea.getSeaLevel(camera.position);
+        waterSurface.transform.setTranslation(camera.position.x, seaLevel, camera.position.z);
+        waterUnderside.transform.setTranslation(camera.position.x, seaLevel, camera.position.z);
+
         // Move sky to center on camera
         skySphere.transform.setTranslation(camera.position);
 
-        // Render sky
+
+        // Render sea and sky
+        modelBatch.render(waterSurface, shader);
+        modelBatch.render(waterUnderside, shader);
         modelBatch.render(skySphere, shader);
     }
 
