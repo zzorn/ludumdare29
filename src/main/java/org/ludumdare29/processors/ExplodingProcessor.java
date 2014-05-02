@@ -9,6 +9,7 @@ import org.ludumdare29.EntityFactory;
 import org.ludumdare29.components.DamageableComponent;
 import org.ludumdare29.components.ExplodingComponent;
 import org.ludumdare29.components.LocationComponent;
+import org.ludumdare29.components.PhysicalComponent;
 
 import javax.xml.stream.Location;
 
@@ -53,9 +54,8 @@ public class ExplodingProcessor extends BaseEntityProcessor {
                         otherEntity.containsComponent(DamageableComponent.class)) {
 
                         final LocationComponent otherEntityLocation = otherEntity.getComponent(LocationComponent.class);
-                        if (otherEntityLocation.position.dst2(explodingPosition) <= proximityRadius2 ) {
-
-
+                        final PhysicalComponent otherPhysical = otherEntity.getComponent(PhysicalComponent.class);
+                        if (otherEntityLocation.position.dst2(explodingPosition) <= proximityRadius2 + otherPhysical.getRadius_m()* otherPhysical.getRadius_m()) {
                             explode(entity);
                             break;
                         }

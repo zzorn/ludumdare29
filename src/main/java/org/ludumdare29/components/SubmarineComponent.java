@@ -11,11 +11,11 @@ import org.ludumdare29.parts.Tank;
 public class SubmarineComponent extends SystemComponent {
 
     public final Controllable electricalMotorThrust_N = controllable("Motor", -300000, 0, 700000, 5, 6,
-                                                                     Input.Keys.S, Input.Keys.W, 0.2f, false);
+                                                                     Input.Keys.F, Input.Keys.R, 0.2f, false);
     public final Controllable diveFins_turns_per_sec = controllable(" Dive ", -0.04f, 0, 0.04f, 1, 8,
-                                                                    Input.Keys.F, Input.Keys.R, 0.1f, true);
+                                                                    Input.Keys.S, Input.Keys.W, 0.1f, true);
     public final Controllable altitudeTankPumpSpeed_m3_per_s = controllable("Ballast", 0.2f, 0, -0.2f, 4, 3,
-                                                                            Input.Keys.UP, Input.Keys.DOWN, 0.2f, false);
+                                                                            Input.Keys.Q, Input.Keys.E, 0.2f, false);
     public final Controllable batteryChargeDelta_Wh_per_s = controllable("Charge Bat.", 0,                     10000, 6, 1,
                                                                          Input.Keys.C, Input.Keys.X, 1f, false);
     public final Tank altitudeTank_m3 = tank("Altitude Tank", 3, 0.5f);
