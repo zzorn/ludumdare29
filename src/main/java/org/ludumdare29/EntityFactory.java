@@ -49,11 +49,11 @@ public final class EntityFactory {
         }
 
         // Explosive
-        float lifetme = 35;
-        float armTime= 3;
+        float lifetme = 20;
+        float armTime= 1;
         float damage = mix(sizeFactor, 200, 1000);
-        float damageRadius_m = mix(sizeFactor, 10, 50);
-        float proximity_m = damageRadius_m * 0.5f;
+        float damageRadius_m = mix(sizeFactor, 30, 100);
+        float proximity_m = damageRadius_m * 0.4f;
         final ExplodingComponent exploding = new ExplodingComponent(sourceEntity,  lifetme, armTime, proximity_m, damage, damageRadius_m);
 
         // Rocket engine
@@ -61,8 +61,8 @@ public final class EntityFactory {
         final RocketComponent rocket = new RocketComponent(thrust_N);
 
         // Bubbles
-        BubblingComponent bubbling = new BubblingComponent(1, 10, 0.1f, 10, 10, true, true, true, false);
-        bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
+        BubblingComponent bubbling = new BubblingComponent(0.05f, 10, 0.1f, 1, 2, true, false, false, false);
+        //bubbling.bubblingPosOffset.set(appearance.getPropellerOffset());
 
         return world.createEntity(location, appearance, physical, exploding, rocket, bubbling);
     }
@@ -102,7 +102,7 @@ public final class EntityFactory {
                                                                  sizeFactor);
 
         // Torpedo tube
-        final float reloadTime_s = mixAndClamp(sizeFactor, 5, 10);
+        final float reloadTime_s = mixAndClamp(sizeFactor, 2f, 5);
         final float torpedoSizeFactor = mixAndClamp(sizeFactor, 0.1f, 1f);
         final float torpedoSpeedFactor = mixAndClamp( sizeFactor, 0.4f, 0.2f) + mixAndClamp(sleekness, 0.1f, 0.6f);
         final TorpedoTubeComponent torpedoTube = new TorpedoTubeComponent(reloadTime_s, torpedoSizeFactor, torpedoSpeedFactor);

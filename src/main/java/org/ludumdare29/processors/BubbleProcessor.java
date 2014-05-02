@@ -2,7 +2,6 @@ package org.ludumdare29.processors;
 
 import org.entityflow.entity.Entity;
 import org.entityflow.system.BaseEntityProcessor;
-import org.flowutils.MathUtils;
 import org.flowutils.SimplexGradientNoise;
 import org.flowutils.time.Time;
 import org.ludumdare29.Sea;
@@ -22,8 +21,8 @@ public class BubbleProcessor extends BaseEntityProcessor {
     private static final float BUBBLE_DRIFT_FORCE = 1f;
     private static final float MAX_SURFACE_BUBBLE_RADIUS = 0.2f;
 
-    private static final float BUBBLE_FADE_OUT_SECONDS = 2f;
-    private static final float BUBBLE_FADE_IN_SECONDS = 1f;
+    private static final float BUBBLE_FADE_OUT_FACTION = 0.2f;
+    private static final float BUBBLE_FADE_IN_FACTION = 0.1f;
 
     private final Sea sea;
 
@@ -55,8 +54,8 @@ public class BubbleProcessor extends BaseEntityProcessor {
 
         // Update appearance size
         final float radius = physical.getRadius_m();
-        final float fadeInFactor = mapAndClamp(bubble.age_seconds, 0, BUBBLE_FADE_IN_SECONDS, 0.000001f, 1f);
-        final float fadeOutFactor = mapAndClamp(secondsLeft, BUBBLE_FADE_OUT_SECONDS, 0, 1f, 0.000001f);
+        final float fadeInFactor = mapAndClamp(bubble.age_seconds, 0, bubble.lifeTime_seconds * BUBBLE_FADE_IN_FACTION, 0.000001f, 1f);
+        final float fadeOutFactor = mapAndClamp(secondsLeft, bubble.lifeTime_seconds * (1f - BUBBLE_FADE_OUT_FACTION), 0, 1f, 0.000001f);
         final float visibleScale = fadeInFactor * fadeOutFactor * radius * 2 * APPEARANCE_SCALE_FACTOR;
         appearance.setScale(visibleScale);
 

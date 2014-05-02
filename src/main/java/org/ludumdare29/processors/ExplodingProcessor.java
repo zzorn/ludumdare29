@@ -52,8 +52,10 @@ public class ExplodingProcessor extends BaseEntityProcessor {
                         otherEntity != exploding.entityToIgnoreForProximity &&
                         otherEntity.containsComponent(DamageableComponent.class)) {
 
-                        final LocationComponent entityLocation = entity.getComponent(LocationComponent.class);
-                        if (entityLocation.position.dst2(explodingPosition) <= proximityRadius2 ) {
+                        final LocationComponent otherEntityLocation = otherEntity.getComponent(LocationComponent.class);
+                        if (otherEntityLocation.position.dst2(explodingPosition) <= proximityRadius2 ) {
+
+
                             explode(entity);
                             break;
                         }

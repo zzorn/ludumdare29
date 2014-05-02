@@ -15,6 +15,7 @@ public final class BubbleComponent extends BaseComponent {
     public float age_seconds = 0;
     public boolean floating = false;
 
+
     public BubbleComponent() {
         this(DEFAULT_LIFE_TIME);
     }
